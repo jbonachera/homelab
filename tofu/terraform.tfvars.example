@@ -1,0 +1,6 @@
+# Copy this file to terraform.tfvars and fill in your values.
+# terraform.tfvars is gitignored and never committed.
+
+node_ip       = ""         # IP address of the Talos node
+cluster_name  = "homelab"  # Kubernetes cluster name
+talos_version = "v1.13.0"  # Must match the version served by PXE

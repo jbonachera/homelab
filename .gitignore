@@ -5,7 +5,6 @@ pxe/
 tofu/terraform.tfvars
 tofu/terraform.tfstate*
 tofu/.terraform/
-tofu/.terraform.lock.hcl
 tofu/kubeconfig.yaml
 
 # Secrets & local state
