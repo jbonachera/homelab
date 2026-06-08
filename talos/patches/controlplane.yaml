@@ -1,3 +1,7 @@
 ---
 cluster:
   allowSchedulingOnControlPlanes: true
+  proxy:
+    mode: ipvs
+    extraArgs:
+      ipvs-strict-arp: "true"    # Required for MetalLB L2 mode with IPVS
