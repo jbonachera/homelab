@@ -1,0 +1,27 @@
+amends "package://github.com/jdx/hk/releases/download/v1.46.0/hk@1.46.0#/Config.pkl"
+import "package://github.com/jdx/hk/releases/download/v1.46.0/hk@1.46.0#/Builtins.pkl"
+
+local preCommitSteps = new Mapping<String, Step> {
+    ["tofu-fmt"] {
+        glob  = List("tofu/**/*.tf")
+        check = "tofu -chdir=tofu fmt -check -recursive"
+        fix   = "tofu -chdir=tofu fmt -recursive"
+    }
+    ["sops-check"] {
+        glob  = List("kubernetes/**/*.secret.yaml")
+        check = "for f in {{ files }}; do grep -q '^sops:' \"$f\" || { echo \"NOT ENCRYPTED: $f\"; exit 1; }; done"
+    }
+    ["yaml-lint"] {
+        glob  = List("kubernetes/**/*.yaml", "talos/**/*.yaml")
+        check = "yamllint -d relaxed {{ files }}"
+    }
+    ["no-private-keys"] = Builtins.detect_private_key
+}
+
+hooks {
+    ["pre-commit"] {
+        stash = "git"
+        stage = true
+        steps = preCommitSteps
+    }
+}
