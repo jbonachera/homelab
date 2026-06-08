@@ -6,7 +6,9 @@ flux2    = "latest"
 sops     = "latest"
 age      = "latest"
 hk       = "latest"
-# yamllint is not in the native mise registry — install separately: pipx install yamllint
+pipx                = "latest"
+python              = "3.12"
+"pipx:yamllint"     = "latest"
 
 [tasks.apply]
 description = "Provision or update the Talos node"
