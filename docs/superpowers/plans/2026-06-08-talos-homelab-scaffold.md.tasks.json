@@ -1,0 +1,47 @@
+{
+  "planPath": "docs/superpowers/plans/2026-06-08-talos-homelab-scaffold.md",
+  "tasks": [
+    {
+      "id": 9,
+      "subject": "Task 1: Repository foundations",
+      "status": "pending",
+      "description": "**Goal:** Update `.gitignore` and create `mise.toml` pinning all CLI tools with convenience tasks.\n\n**Files:**\n- Modify: `.gitignore`\n- Create: `mise.toml`\n\n**Acceptance Criteria:**\n- [ ] `.gitignore` covers tofu state, tfvars, kubeconfig, age.key, .env, hk.local.pkl\n- [ ] `mise install` completes without errors\n- [ ] `mise run --list` shows apply, plan, reset tasks\n\n**Verify:** `mise install && mise run --list`\n\n```json:metadata\n{\"files\": [\".gitignore\", \"mise.toml\"], \"verifyCommand\": \"mise install && mise run --list\", \"acceptanceCriteria\": [\"gitignore covers tofu state and secrets\", \"mise install succeeds\", \"mise run --list shows apply, plan, reset\"]}\n```"
+    },
+    {
+      "id": 10,
+      "subject": "Task 2: Pre-commit hooks",
+      "status": "pending",
+      "blockedBy": [9],
+      "description": "**Goal:** Create `hk.pkl` with tofu-fmt, sops-check, yaml-lint, and private key detection hooks.\n\n**Files:**\n- Create: `hk.pkl`\n\n**Acceptance Criteria:**\n- [ ] `hk install` succeeds\n- [ ] `hk run pre-commit` passes on current repo\n- [ ] Unencrypted `*.secret.yaml` is blocked\n\n**Verify:** `hk install && hk run pre-commit`\n\n```json:metadata\n{\"files\": [\"hk.pkl\"], \"verifyCommand\": \"hk install && hk run pre-commit\", \"acceptanceCriteria\": [\"hk install succeeds\", \"hk run pre-commit passes\", \"unencrypted secret blocked\"]}\n```"
+    },
+    {
+      "id": 11,
+      "subject": "Task 3: Talos patches",
+      "status": "pending",
+      "blockedBy": [10],
+      "description": "**Goal:** Create Talos machine configuration patches — hostname/NTP (all nodes) and allowSchedulingOnControlPlanes (controlplane).\n\n**Files:**\n- Create: `talos/patches/all.yaml`\n- Create: `talos/patches/controlplane.yaml`\n\n**Acceptance Criteria:**\n- [ ] yamllint passes on both files\n- [ ] all.yaml has no IPs\n- [ ] controlplane.yaml enables allowSchedulingOnControlPlanes\n\n**Verify:** `yamllint talos/patches/`\n\n```json:metadata\n{\"files\": [\"talos/patches/all.yaml\", \"talos/patches/controlplane.yaml\"], \"verifyCommand\": \"yamllint talos/patches/\", \"acceptanceCriteria\": [\"yamllint passes\", \"no IPs in committed files\", \"allowSchedulingOnControlPlanes set\"]}\n```"
+    },
+    {
+      "id": 12,
+      "subject": "Task 4: OpenTofu configuration",
+      "status": "pending",
+      "blockedBy": [11],
+      "description": "**Goal:** Create the full OpenTofu module — variables, main config (secrets, machineconfig, apply, bootstrap, kubeconfig), outputs, and tfvars example.\n\n**Files:**\n- Create: `tofu/variables.tf`\n- Create: `tofu/main.tf`\n- Create: `tofu/outputs.tf`\n- Create: `tofu/terraform.tfvars.example`\n\n**Acceptance Criteria:**\n- [ ] `tofu -chdir=tofu init` succeeds\n- [ ] `tofu -chdir=tofu validate` reports Success!\n- [ ] `tofu -chdir=tofu fmt -check` exits 0\n\n**Verify:** `tofu -chdir=tofu init && tofu -chdir=tofu validate && tofu -chdir=tofu fmt -check`\n\n```json:metadata\n{\"files\": [\"tofu/variables.tf\", \"tofu/main.tf\", \"tofu/outputs.tf\", \"tofu/terraform.tfvars.example\"], \"verifyCommand\": \"tofu -chdir=tofu init && tofu -chdir=tofu validate && tofu -chdir=tofu fmt -check\", \"acceptanceCriteria\": [\"tofu init succeeds\", \"tofu validate reports Success!\", \"tofu fmt -check exits 0\"]}\n```"
+    },
+    {
+      "id": 13,
+      "subject": "Task 5: SOPS configuration",
+      "status": "pending",
+      "blockedBy": [12],
+      "description": "**Goal:** Create `.sops.yaml` to auto-encrypt/decrypt `*.secret.yaml` files under `kubernetes/` using age.\n\n**Files:**\n- Create: `.sops.yaml`\n\n**Acceptance Criteria:**\n- [ ] creation_rules match `kubernetes/.*\\.secret\\.yaml$`\n- [ ] sops encrypt produces `^sops:` root key\n- [ ] sops decrypt recovers original value\n\n**Verify:** Encrypt/decrypt round-trip on a temp file.\n\n```json:metadata\n{\"files\": [\".sops.yaml\"], \"verifyCommand\": \"SOPS_AGE_KEY_FILE=age.key sops -e -i /tmp/sops-test.yaml && grep -q '^sops:' /tmp/sops-test.yaml && echo PASS\", \"acceptanceCriteria\": [\".sops.yaml creation_rules match kubernetes secrets\", \"encrypt produces sops root key\", \"decrypt recovers plaintext\"]}\n```"
+    },
+    {
+      "id": 14,
+      "subject": "Task 6: Kubernetes/Flux scaffold",
+      "status": "pending",
+      "blockedBy": [13],
+      "description": "**Goal:** Create Kubernetes directory structure with Flux Kustomization CRDs (infrastructure before apps via dependsOn, SOPS decryption configured).\n\n**Files:**\n- Create: `kubernetes/infrastructure.yaml`\n- Create: `kubernetes/apps.yaml`\n- Create: `kubernetes/infrastructure/kustomization.yaml`\n- Create: `kubernetes/infrastructure/sources/.gitkeep`\n- Create: `kubernetes/apps/kustomization.yaml`\n\n**Acceptance Criteria:**\n- [ ] yamllint passes on all yaml files\n- [ ] apps.yaml has dependsOn: [{name: infrastructure}]\n- [ ] both CRDs reference sourceRef.name: flux-system\n- [ ] both CRDs have spec.decryption.provider: sops\n\n**Verify:** `yamllint kubernetes/`\n\n```json:metadata\n{\"files\": [\"kubernetes/infrastructure.yaml\", \"kubernetes/apps.yaml\", \"kubernetes/infrastructure/kustomization.yaml\", \"kubernetes/apps/kustomization.yaml\"], \"verifyCommand\": \"yamllint kubernetes/\", \"acceptanceCriteria\": [\"yamllint passes\", \"apps.yaml dependsOn infrastructure\", \"both CRDs have sops decryption\"]}\n```"
+    }
+  ],
+  "lastUpdated": "2026-06-08T00:00:00Z"
+}
