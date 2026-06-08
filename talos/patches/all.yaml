@@ -1,0 +1,8 @@
+---
+machine:
+  network:
+    hostname: homelab
+  time:
+    servers:
+      - time.cloudflare.com
+      - pool.ntp.org
