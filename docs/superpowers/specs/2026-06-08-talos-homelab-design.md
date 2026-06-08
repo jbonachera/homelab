@@ -143,8 +143,6 @@ State is never committed to git.
 ```yaml
 # talos/patches/all.yaml
 machine:
-  network:
-    hostname: homelab
   time:
     servers:
       - time.cloudflare.com

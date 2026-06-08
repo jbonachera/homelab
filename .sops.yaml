@@ -13,4 +13,4 @@
 # Only the public key (age1...) is safe to commit here.
 creation_rules:
   - path_regex: ^kubernetes/.*\.secret\.yaml$
-    age: age1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    age: age1serescfzmafna2ep2c5k23s9qr2gajm80wuhdt92mj5q7zedhgpsqsradh

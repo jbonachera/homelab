@@ -9,6 +9,7 @@ hk       = "latest"
 pipx                = "latest"
 python              = "3.12"
 "pipx:yamllint"     = "latest"
+pkl = "latest"
 
 [tasks.apply]
 description = "Provision or update the Talos node"
