@@ -4,6 +4,7 @@ pxe/
 # OpenTofu
 tofu/terraform.tfvars
 tofu/terraform.tfstate*
+tofu/.terraform.lock*
 tofu/.terraform/
 tofu/kubeconfig.yaml
 
