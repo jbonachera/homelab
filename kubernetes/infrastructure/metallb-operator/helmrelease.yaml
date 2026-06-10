@@ -16,3 +16,8 @@ spec:
         namespace: flux-system
       interval: 12h
   targetNamespace: metallb-system
+  install:
+    createNamespace: true
+  values:
+    speaker:
+      ignoreExcludeLB: true

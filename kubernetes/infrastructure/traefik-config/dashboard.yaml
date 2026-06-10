@@ -9,8 +9,7 @@ spec:
     - web
   routes:
     - match: >-
-        Host(`dashboard.homelab.lan`) &&
-        (PathPrefix(`/dashboard`) || PathPrefix(`/api`))
+        Host(`dashboard.homelab.lan`)
       kind: Rule
       services:
         - name: api@internal
