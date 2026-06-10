@@ -7,3 +7,4 @@ resources:
   - metallb-config.yaml
   - sources/traefik.yaml
   - traefik-operator.yaml
+  - traefik-config.yaml
