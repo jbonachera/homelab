@@ -41,7 +41,7 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-    - host: demo.homelab.local
+    - host: demo.homelab.lan
       http:
         paths:
           - path: /

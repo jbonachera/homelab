@@ -13,7 +13,7 @@ ingress controller pour router le trafic HTTP vers les applications. Le fichier
 
 - Déployer Traefik comme ingress controller HTTP (port 80, pas de TLS)
 - Traefik obtient une IP dynamique du pool MetalLB via un Service `LoadBalancer`
-- Dashboard accessible sur `dashboard.homelab.local` via IngressRoute
+- Dashboard accessible sur `dashboard.homelab.lan` via IngressRoute
 - Suivre le pattern existant : HelmRepository + HelmRelease Flux
 - Corriger `demo.yaml` qui utilise `type: LoadBalancer` inutilement
 
@@ -28,8 +28,8 @@ MetalLB IP (172.20.1.150+)
      ▼  :80
   Traefik Service (LoadBalancer)
      │
-     ├──── Ingress: demo.homelab.local  → demo:80
-     └──── IngressRoute: dashboard.homelab.local → api@internal
+     ├──── Ingress: demo.homelab.lan  → demo:80
+     └──── IngressRoute: dashboard.homelab.lan → api@internal
 ```
 
 ## Chaîne de dépendances Flux
@@ -83,7 +83,7 @@ Flux `Kustomization` :
 
 `IngressRoute` (CRD Traefik) :
 - Namespace : `traefik-system`
-- Host : `dashboard.homelab.local`
+- Host : `dashboard.homelab.lan`
 - Route vers `api@internal`
 - EntryPoint : `web` (port 80)
 

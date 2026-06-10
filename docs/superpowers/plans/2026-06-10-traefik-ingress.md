@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers-extended-cc:subagent-driven-development (recommended) or superpowers-extended-cc:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Déployer Traefik comme ingress controller HTTP via HelmRelease Flux, avec une IP MetalLB dynamique et le dashboard accessible sur `dashboard.homelab.local`.
+**Goal:** Déployer Traefik comme ingress controller HTTP via HelmRelease Flux, avec une IP MetalLB dynamique et le dashboard accessible sur `dashboard.homelab.lan`.
 
 **Architecture:** HelmRepository + HelmRelease Flux (même pattern que MetalLB). Traefik reçoit une IP du pool MetalLB via `service.type: LoadBalancer`. Le dashboard est exposé via une `IngressRoute` CRD Traefik. La chaîne de dépendances Flux garantit que MetalLB a son pool configuré avant que Traefik demande une IP.
 
@@ -168,7 +168,7 @@ git commit -m "feat: add Traefik HelmRelease via MetalLB LoadBalancer"
 
 ### Task 2: Flux Kustomization traefik-config + IngressRoute dashboard
 
-**Goal:** Exposer le dashboard Traefik sur `http://dashboard.homelab.local/dashboard/` via une `IngressRoute` CRD.
+**Goal:** Exposer le dashboard Traefik sur `http://dashboard.homelab.lan/dashboard/` via une `IngressRoute` CRD.
 
 **Files:**
 - Create: `kubernetes/infrastructure/traefik-config.yaml`
@@ -178,7 +178,7 @@ git commit -m "feat: add Traefik HelmRelease via MetalLB LoadBalancer"
 
 **Acceptance Criteria:**
 - [ ] `traefik-config.yaml` Kustomization Flux a `dependsOn: traefik-operator`, `wait: true`, `timeout: 2m`
-- [ ] `dashboard.yaml` est une `IngressRoute` dans `traefik-system`, host `dashboard.homelab.local`, route vers `api@internal`
+- [ ] `dashboard.yaml` est une `IngressRoute` dans `traefik-system`, host `dashboard.homelab.lan`, route vers `api@internal`
 - [ ] `yamllint` passe sur tous les nouveaux fichiers
 
 **Verify:** `mise exec -- yamllint kubernetes/infrastructure/traefik-config.yaml kubernetes/infrastructure/traefik-config/` → aucune erreur
@@ -208,14 +208,14 @@ spec:
   entryPoints:
     - web
   routes:
-    - match: Host(`dashboard.homelab.local`) && (PathPrefix(`/dashboard`) || PathPrefix(`/api`))
+    - match: Host(`dashboard.homelab.lan`) && (PathPrefix(`/dashboard`) || PathPrefix(`/api`))
       kind: Rule
       services:
         - name: api@internal
           kind: TraefikService
 ```
 
-Note: le dashboard est accessible sur `http://dashboard.homelab.local/dashboard/` (avec trailing slash). Ajouter `dashboard.homelab.local` au fichier `/etc/hosts` local en pointant vers l'IP MetalLB assignée à Traefik.
+Note: le dashboard est accessible sur `http://dashboard.homelab.lan/dashboard/` (avec trailing slash). Ajouter `dashboard.homelab.lan` au fichier `/etc/hosts` local en pointant vers l'IP MetalLB assignée à Traefik.
 
 - [ ] **Step 3 : Créer `kubernetes/infrastructure/traefik-config.yaml`**
 
@@ -284,7 +284,7 @@ git commit -m "feat: add Traefik dashboard IngressRoute"
 
 **Acceptance Criteria:**
 - [ ] `spec.type` du Service `demo` est `ClusterIP` (au lieu de `LoadBalancer`)
-- [ ] L'`Ingress` existant sur `demo.homelab.local` est inchangé
+- [ ] L'`Ingress` existant sur `demo.homelab.lan` est inchangé
 - [ ] `yamllint` passe
 
 **Verify:** `grep 'type:' kubernetes/apps/demo.yaml` → retourne `type: ClusterIP`

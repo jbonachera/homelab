@@ -9,7 +9,7 @@ spec:
     - web
   routes:
     - match: >-
-        Host(`dashboard.homelab.local`) &&
+        Host(`dashboard.homelab.lan`) &&
         (PathPrefix(`/dashboard`) || PathPrefix(`/api`))
       kind: Rule
       services:
