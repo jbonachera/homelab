@@ -1,0 +1,26 @@
+{
+  "planPath": "docs/superpowers/plans/2026-06-10-traefik-ingress.md",
+  "tasks": [
+    {
+      "id": 1,
+      "subject": "Task 1: HelmRepository + HelmRelease Traefik",
+      "status": "pending",
+      "description": "**Goal:** Créer les manifests Flux qui déploient Traefik via Helm avec un Service LoadBalancer MetalLB.\n\n**Files:**\n- Create: `kubernetes/infrastructure/sources/traefik.yaml`\n- Create: `kubernetes/infrastructure/traefik-operator.yaml`\n- Create: `kubernetes/infrastructure/traefik-operator/kustomization.yaml`\n- Create: `kubernetes/infrastructure/traefik-operator/helmrelease.yaml`\n- Modify: `kubernetes/infrastructure/kustomization.yaml`\n\n**Acceptance Criteria:**\n- [ ] HelmRepository pointe vers https://traefik.github.io/charts\n- [ ] HelmRelease version 34.* targetNamespace traefik-system\n- [ ] service.type: LoadBalancer\n- [ ] ingressRoute.dashboard.enabled: false\n- [ ] dependsOn: metallb-config, wait:true, timeout:5m\n- [ ] yamllint passe\n\n**Verify:** `mise exec -- yamllint kubernetes/infrastructure/sources/traefik.yaml kubernetes/infrastructure/traefik-operator.yaml kubernetes/infrastructure/traefik-operator/`\n\n```json:metadata\n{\"files\": [\"kubernetes/infrastructure/sources/traefik.yaml\", \"kubernetes/infrastructure/traefik-operator.yaml\", \"kubernetes/infrastructure/traefik-operator/kustomization.yaml\", \"kubernetes/infrastructure/traefik-operator/helmrelease.yaml\", \"kubernetes/infrastructure/kustomization.yaml\"], \"verifyCommand\": \"mise exec -- yamllint kubernetes/infrastructure/sources/traefik.yaml kubernetes/infrastructure/traefik-operator.yaml kubernetes/infrastructure/traefik-operator/\", \"acceptanceCriteria\": [\"HelmRepository pointe vers https://traefik.github.io/charts\", \"HelmRelease version 34.* targetNamespace traefik-system\", \"service.type: LoadBalancer\", \"ingressRoute.dashboard.enabled: false\", \"dependsOn: metallb-config wait:true timeout:5m\", \"yamllint passe\"]}\n```"
+    },
+    {
+      "id": 2,
+      "subject": "Task 2: Flux Kustomization traefik-config + IngressRoute dashboard",
+      "status": "pending",
+      "blockedBy": [1],
+      "description": "**Goal:** Exposer le dashboard Traefik sur http://dashboard.homelab.local/dashboard/ via une IngressRoute CRD.\n\n**Files:**\n- Create: `kubernetes/infrastructure/traefik-config.yaml`\n- Create: `kubernetes/infrastructure/traefik-config/kustomization.yaml`\n- Create: `kubernetes/infrastructure/traefik-config/dashboard.yaml`\n- Modify: `kubernetes/infrastructure/kustomization.yaml`\n\n**Acceptance Criteria:**\n- [ ] dependsOn: traefik-operator, wait:true, timeout:2m\n- [ ] IngressRoute dashboard.homelab.local vers api@internal\n- [ ] yamllint passe\n\n**Verify:** `mise exec -- yamllint kubernetes/infrastructure/traefik-config.yaml kubernetes/infrastructure/traefik-config/`\n\n```json:metadata\n{\"files\": [\"kubernetes/infrastructure/traefik-config.yaml\", \"kubernetes/infrastructure/traefik-config/kustomization.yaml\", \"kubernetes/infrastructure/traefik-config/dashboard.yaml\", \"kubernetes/infrastructure/kustomization.yaml\"], \"verifyCommand\": \"mise exec -- yamllint kubernetes/infrastructure/traefik-config.yaml kubernetes/infrastructure/traefik-config/\", \"acceptanceCriteria\": [\"dependsOn: traefik-operator wait:true timeout:2m\", \"IngressRoute dashboard.homelab.local vers api@internal\", \"yamllint passe\"]}\n```"
+    },
+    {
+      "id": 3,
+      "subject": "Task 3: Corriger demo.yaml — Service LoadBalancer → ClusterIP",
+      "status": "pending",
+      "blockedBy": [1],
+      "description": "**Goal:** Le Service demo n'a pas besoin d'une IP MetalLB puisqu'il est exposé via Ingress Traefik ; passer le type à ClusterIP.\n\n**Files:**\n- Modify: `kubernetes/apps/demo.yaml`\n\n**Acceptance Criteria:**\n- [ ] spec.type: ClusterIP dans le Service demo\n- [ ] Ingress inchangé\n\n**Verify:** `grep 'type:' kubernetes/apps/demo.yaml` → retourne `  type: ClusterIP`\n\n```json:metadata\n{\"files\": [\"kubernetes/apps/demo.yaml\"], \"verifyCommand\": \"grep 'type:' kubernetes/apps/demo.yaml\", \"acceptanceCriteria\": [\"spec.type: ClusterIP dans le Service demo\", \"Ingress inchangé\"]}\n```"
+    }
+  ],
+  "lastUpdated": "2026-06-10T00:00:00Z"
+}
