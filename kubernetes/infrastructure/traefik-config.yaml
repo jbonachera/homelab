@@ -8,8 +8,6 @@ spec:
   interval: 10m0s
   path: ./kubernetes/infrastructure/traefik-config
   prune: true
-  wait: true
-  timeout: 2m0s
   sourceRef:
     kind: GitRepository
     name: flux-system
