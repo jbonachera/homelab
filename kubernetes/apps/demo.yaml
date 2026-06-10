@@ -26,7 +26,7 @@ metadata:
   name: demo
   namespace: default
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   selector:
     app: demo
   ports:
