@@ -5,3 +5,5 @@ resources:
   - sources/metallb.yaml
   - metallb-operator.yaml
   - metallb-config.yaml
+  - sources/traefik.yaml
+  - traefik-operator.yaml
