@@ -2,16 +2,14 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: metallb-operator
+  name: metallb-config
   namespace: flux-system
 spec:
   interval: 10m0s
-  path: ./kubernetes/metallb-operator
+  path: ./kubernetes/infrastructure/metallb-config
   prune: true
-  wait: true
-  timeout: 5m0s
   sourceRef:
     kind: GitRepository
     name: flux-system
   dependsOn:
-    - name: infrastructure
+    - name: metallb-operator
