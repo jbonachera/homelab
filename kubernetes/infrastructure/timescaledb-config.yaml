@@ -15,8 +15,3 @@ spec:
     name: flux-system
   dependsOn:
     - name: timescaledb
-  healthChecks:
-    - apiVersion: external-secrets.io/v1beta1
-      kind: ExternalSecret
-      name: timescaledb-credentials
-      namespace: database
