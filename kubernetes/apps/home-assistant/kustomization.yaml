@@ -5,6 +5,7 @@ resources:
   - namespace.yaml
   - pvc.yaml
   - matter-server-pvc.yaml
+  - matter-server-deployment.yaml
   - external-secret.yaml
   - deployment.yaml
   - service.yaml

@@ -4,3 +4,5 @@ machine:
     servers:
       - time.cloudflare.com
       - pool.ntp.org
+  nodeLabels:
+    homelab/iot-gateway: "true"

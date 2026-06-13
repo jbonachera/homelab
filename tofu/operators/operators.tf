@@ -48,7 +48,7 @@ resource "kubernetes_manifest" "cilium_ip_pool" {
     }
     spec = {
       blocks = [
-        { cidr = "172.20.1.160/28" }
+        { cidr = "172.20.3.208/28" }
       ]
     }
   }
