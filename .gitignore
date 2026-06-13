@@ -14,3 +14,6 @@ age.key
 
 # hk local overrides
 hk.local.pkl
+
+# NFS provisioner local config
+kubernetes/infrastructure/nfs-provisioner/cluster-vars.yaml

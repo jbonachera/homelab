@@ -1,0 +1,12 @@
+---
+# Copy this file to cluster-vars.yaml, fill in your values, then apply:
+#   kubectl apply -f kubernetes/infrastructure/nfs-provisioner/cluster-vars.yaml
+# cluster-vars.yaml is gitignored — never commit it.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster-vars
+  namespace: flux-system
+data:
+  NFS_SERVER: "192.168.1.100"   # IP of your NAS / NFS server
+  NFS_PATH: "/volume1/k8s"     # NFS export path

@@ -8,3 +8,5 @@ resources:
   - sources/traefik.yaml
   - traefik-operator.yaml
   - traefik-config.yaml
+  - sources/nfs-provisioner.yaml
+  - nfs-provisioner.yaml
