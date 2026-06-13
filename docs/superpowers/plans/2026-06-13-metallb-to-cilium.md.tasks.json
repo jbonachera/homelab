@@ -1,0 +1,26 @@
+{
+  "planPath": "docs/superpowers/plans/2026-06-13-metallb-to-cilium.md",
+  "tasks": [
+    {
+      "id": 1,
+      "subject": "Task 1: Update Talos patches — disable flannel and kube-proxy",
+      "status": "pending",
+      "description": "**Goal:** Patch Talos controlplane config to use `cni.name: none` and `proxy.disabled: true` so Cilium can own both.\n\n**Files:**\n- Modify: `talos/patches/controlplane.yaml`\n\n**Acceptance Criteria:**\n- [ ] `proxy.mode` and `ipvs-strict-arp` lines are removed\n- [ ] `proxy.disabled: true` is present under `cluster`\n- [ ] `cluster.network.cni.name: none` is present\n- [ ] `yamllint talos/` passes\n\n**Verify:** `mise exec -- yamllint talos/` → no errors\n\n```json:metadata\n{\"files\": [\"talos/patches/controlplane.yaml\"], \"verifyCommand\": \"mise exec -- yamllint talos/\", \"acceptanceCriteria\": [\"proxy.disabled: true present\", \"cluster.network.cni.name: none present\", \"yamllint passes\"]}\n```"
+    },
+    {
+      "id": 2,
+      "subject": "Task 2: Add Cilium Helm release and CRD resources to tofu/operators",
+      "status": "pending",
+      "blockedBy": [1],
+      "description": "**Goal:** Replace `helm_release.metallb` + `kubernetes_namespace.metallb_system` with `helm_release.cilium`, `kubernetes_manifest.cilium_ip_pool`, and `kubernetes_manifest.cilium_l2_policy` in `operators.tf`; update Traefik's `depends_on` accordingly.\n\n**Files:**\n- Modify: `tofu/operators/operators.tf`\n- Modify: `tofu/operators/variables.tf`\n- Modify: `tofu/operators/terraform.tfvars.example`\n- Modify: `tofu/operators/terraform.tfvars`\n\n**Acceptance Criteria:**\n- [ ] `helm_release.metallb` and `kubernetes_namespace.metallb_system` are removed\n- [ ] `helm_release.cilium` targets `kube-system`, sets `kubeProxyReplacement`, `l2announcements`, `externalIPs`, `k8sServiceHost`, `k8sServicePort`\n- [ ] `kubernetes_manifest.cilium_ip_pool` creates a `CiliumLoadBalancerIPPool` with range 172.20.1.160/28\n- [ ] `kubernetes_manifest.cilium_l2_policy` creates a `CiliumL2AnnouncementPolicy` matching all services\n- [ ] `helm_release.traefik` depends on Cilium resources\n- [ ] `variable.chart_cilium_version` and `variable.node_ip` exist in `variables.tf`\n- [ ] `tofu -chdir=tofu/operators validate` passes\n\n**Verify:** `tofu -chdir=tofu/operators validate` → `Success! The configuration is valid.`\n\n```json:metadata\n{\"files\": [\"tofu/operators/operators.tf\", \"tofu/operators/variables.tf\", \"tofu/operators/terraform.tfvars.example\", \"tofu/operators/terraform.tfvars\"], \"verifyCommand\": \"tofu -chdir=tofu/operators validate\", \"acceptanceCriteria\": [\"metallb resources removed\", \"cilium helm release added\", \"CiliumLoadBalancerIPPool created\", \"CiliumL2AnnouncementPolicy created\", \"traefik depends on cilium resources\", \"tofu validate passes\"]}\n```"
+    },
+    {
+      "id": 3,
+      "subject": "Task 3: Remove MetalLB from Flux infrastructure",
+      "status": "pending",
+      "blockedBy": [2],
+      "description": "**Goal:** Delete the MetalLB config resources from Flux so it no longer tries to manage MetalLB CRDs that no longer exist.\n\n**Files:**\n- Modify: `kubernetes/infrastructure/kustomization.yaml`\n- Delete: `kubernetes/infrastructure/metallb-config.yaml`\n- Delete: `kubernetes/infrastructure/metallb-config/` (directory)\n\n**Acceptance Criteria:**\n- [ ] `metallb-config.yaml` is gone from `kubernetes/infrastructure/`\n- [ ] `kubernetes/infrastructure/metallb-config/` directory is gone\n- [ ] `metallb-config.yaml` is removed from `kubernetes/infrastructure/kustomization.yaml`\n- [ ] `mise exec -- yamllint kubernetes/` passes\n\n**Verify:** `mise exec -- yamllint kubernetes/` → no errors\n\n```json:metadata\n{\"files\": [\"kubernetes/infrastructure/kustomization.yaml\", \"kubernetes/infrastructure/metallb-config.yaml\", \"kubernetes/infrastructure/metallb-config/\"], \"verifyCommand\": \"mise exec -- yamllint kubernetes/\", \"acceptanceCriteria\": [\"metallb-config.yaml deleted\", \"metallb-config/ directory deleted\", \"kustomization.yaml updated\", \"yamllint passes\"]}\n```"
+    }
+  ],
+  "lastUpdated": "2026-06-13T00:00:00Z"
+}
