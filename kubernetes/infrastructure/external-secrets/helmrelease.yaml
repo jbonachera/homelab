@@ -18,5 +18,10 @@ spec:
   targetNamespace: external-secrets
   install:
     createNamespace: true
+    crds: CreateReplace
+  upgrade:
+    crds: CreateReplace
+    remediation:
+      remediateLastFailure: true
   values:
     installCRDs: true
