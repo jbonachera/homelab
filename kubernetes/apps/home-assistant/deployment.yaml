@@ -44,7 +44,7 @@ spec:
             - containerPort: 8123
           readinessProbe:
             httpGet:
-              path: /api/
+              path: /
               port: 8123
             initialDelaySeconds: 30
             periodSeconds: 10
