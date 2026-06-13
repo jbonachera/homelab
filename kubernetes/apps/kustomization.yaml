@@ -4,3 +4,4 @@ kind: Kustomization
 resources:
   - demo.yaml
   - home-assistant.yaml
+  - homebridge.yaml
