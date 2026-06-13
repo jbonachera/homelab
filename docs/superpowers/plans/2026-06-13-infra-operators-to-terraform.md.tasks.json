@@ -4,29 +4,29 @@
     {
       "id": 4,
       "subject": "Task 1: Add Helm provider and operator variables to Terraform",
-      "status": "pending",
+      "status": "completed",
       "description": "**Goal:** Wire `hashicorp/helm` provider into `tofu/` and declare chart version + NFS variables.\n\n**Files:**\n- Modify: `tofu/main.tf`\n- Modify: `tofu/variables.tf`\n- Modify: `tofu/terraform.tfvars.example`\n\n**Acceptance Criteria:**\n- [ ] `tofu/main.tf` declares `helm = { source = \"hashicorp/helm\", version = \"~> 2.16\" }` in `required_providers`\n- [ ] `tofu/main.tf` contains a `provider \"helm\"` block pointing at `kubeconfig.yaml`\n- [ ] `tofu/variables.tf` declares `nfs_server`, `nfs_path`, `chart_metallb_version`, `chart_traefik_version`, `chart_eso_version`, `chart_nfs_version`\n- [ ] `tofu/terraform.tfvars.example` documents all new variables\n- [ ] `tofu validate` passes after `tofu init`\n\n**Verify:** `cd tofu && tofu init && tofu validate` → `Success! The configuration is valid.`\n\n```json:metadata\n{\"files\": [\"tofu/main.tf\", \"tofu/variables.tf\", \"tofu/terraform.tfvars.example\", \"tofu/.terraform.lock.hcl\"], \"verifyCommand\": \"cd tofu && tofu init && tofu validate\", \"acceptanceCriteria\": [\"helm provider declared in required_providers\", \"provider helm block present pointing at kubeconfig.yaml\", \"nfs_server, nfs_path, chart_*_version variables declared\", \"terraform.tfvars.example updated\", \"tofu validate passes\"]}\n```"
     },
     {
       "id": 5,
       "subject": "Task 2: Create operators.tf with 4 helm_release resources",
-      "status": "pending",
+      "status": "completed",
       "blockedBy": [4],
       "description": "**Goal:** Declare MetalLB, Traefik, External Secrets Operator, and NFS provisioner as Terraform `helm_release` resources.\n\n**Files:**\n- Create: `tofu/operators.tf`\n\n**Acceptance Criteria:**\n- [ ] `tofu/operators.tf` contains exactly 4 `helm_release` resources: `metallb`, `traefik`, `external_secrets`, `nfs_provisioner`\n- [ ] All releases set `wait = true`\n- [ ] MetalLB, Traefik, ESO have `depends_on = [talos_machine_bootstrap.this]`\n- [ ] NFS provisioner has `depends_on = [helm_release.traefik]`\n- [ ] All Helm values from the existing HelmRelease YAMLs are preserved\n- [ ] `tofu validate` passes\n\n**Verify:** `cd tofu && tofu validate` → `Success! The configuration is valid.`\n\n```json:metadata\n{\"files\": [\"tofu/operators.tf\"], \"verifyCommand\": \"cd tofu && tofu validate\", \"acceptanceCriteria\": [\"4 helm_release resources present\", \"wait=true on all\", \"correct depends_on on each\", \"tofu validate passes\"]}\n```"
     },
     {
       "id": 6,
       "subject": "Task 3: Remove operator Flux resources",
-      "status": "pending",
+      "status": "completed",
       "blockedBy": [5],
       "description": "**Goal:** Delete all Flux HelmRelease and HelmRepository objects for the 4 operators, and update `kubernetes/infrastructure/kustomization.yaml`.\n\n**Files:**\n- Delete: 20 files across `sources/`, `metallb-operator/`, `traefik-operator/`, `external-secrets/`, `nfs-provisioner/`\n- Modify: `kubernetes/infrastructure/kustomization.yaml`\n\n**Acceptance Criteria:**\n- [ ] `kubernetes/infrastructure/sources/` directory no longer exists\n- [ ] All 4 operator directories and their .yaml Kustomization files deleted\n- [ ] `kubernetes/infrastructure/kustomization.yaml` lists exactly: metallb-config.yaml, traefik-config.yaml, timescaledb.yaml, timescaledb-config.yaml\n- [ ] `mise exec -- yamllint kubernetes/` passes\n\n**Verify:** `mise exec -- yamllint kubernetes/` → no errors\n\n```json:metadata\n{\"files\": [\"kubernetes/infrastructure/kustomization.yaml\"], \"verifyCommand\": \"mise exec -- yamllint kubernetes/\", \"acceptanceCriteria\": [\"sources/ deleted\", \"all 4 operator dirs deleted\", \"kustomization.yaml has exactly 4 resources\", \"yamllint passes\"]}\n```"
     },
     {
       "id": 7,
       "subject": "Task 4: Simplify Flux dependency chains",
-      "status": "pending",
+      "status": "completed",
       "blockedBy": [6],
-      "description": "**Goal:** Remove stale `dependsOn` entries and add `healthChecks` to `timescaledb-config`.\n\n**Files:**\n- Modify: `kubernetes/infrastructure/timescaledb.yaml`\n- Modify: `kubernetes/infrastructure/timescaledb-config.yaml`\n\n**Acceptance Criteria:**\n- [ ] `timescaledb.yaml` has no `dependsOn` field\n- [ ] `timescaledb-config.yaml` has `dependsOn: [{name: timescaledb}]` only\n- [ ] `timescaledb-config.yaml` has `healthChecks` on `ExternalSecret/timescaledb-credentials` in namespace `database`\n- [ ] `mise exec -- yamllint kubernetes/` passes\n\n**Verify:** `mise exec -- yamllint kubernetes/` → no errors\n\n```json:metadata\n{\"files\": [\"kubernetes/infrastructure/timescaledb.yaml\", \"kubernetes/infrastructure/timescaledb-config.yaml\"], \"verifyCommand\": \"mise exec -- yamllint kubernetes/\", \"acceptanceCriteria\": [\"timescaledb.yaml has no dependsOn\", \"timescaledb-config.yaml dependsOn only timescaledb\", \"healthChecks on ExternalSecret added\", \"yamllint passes\"]}\n```"
+      "description": "**Goal:** Remove stale `dependsOn` entries and add `healthChecks` to `timescaledb-config`.\n\n**Files:**\n- Modify: `kubernetes/infrastructure/timescaledb.yaml`\n- Modify: `kubernetes/infrastructure/timescaledb-config.yaml`\n\n**Acceptance Criteria:**\n- [ ] `timescaledb.yaml` has no `dependsOn` field\n- [ ] `timescaledb-config.yaml` has `dependsOn: [{name: timescaledb}]` only\n- [ ] `timescaledb-config.yaml` has `healthChecks` on `ExternalSecret/timescaledb-credentials` in namespace `database`\n- [ ] `mise exec -- yamllint kubernetes/` passes\n\n**Verify:** `mise exec -- yamllint kubernetes/` → no errors\n\n```json:metadata\n{\"files\": [\"kubernetes/infrastructure/timescaledb.yaml\", \"kubernetes/infrastructure/timescaledb-config.yaml\"], \"verifyCommand\": \"mise exec -- yamllint kubernetes/\", \"acceptanceCriteria\": [\"timescaledb.yaml has no dependsOn\", \"timescaledb-config.yaml dependsOn only timescaledb\", \"yamllint passes\"]}\n```"
     }
   ],
   "lastUpdated": "2026-06-13T00:00:00Z"

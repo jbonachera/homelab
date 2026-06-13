@@ -1,6 +1,4 @@
 resource "kubernetes_namespace" "metallb_system" {
-  depends_on = [talos_machine_bootstrap.this]
-
   metadata {
     name = "metallb-system"
     labels = {
@@ -77,7 +75,6 @@ resource "helm_release" "traefik" {
 # manually apply updated CRDs first:
 # kubectl apply --server-side -f https://raw.githubusercontent.com/external-secrets/external-secrets/<version>/deploy/crds/
 resource "helm_release" "external_secrets" {
-  depends_on       = [talos_machine_bootstrap.this]
   name             = "external-secrets"
   repository       = "https://charts.external-secrets.io"
   chart            = "external-secrets"
@@ -96,7 +93,6 @@ resource "helm_release" "external_secrets" {
 }
 
 resource "helm_release" "nfs_provisioner" {
-  depends_on       = [talos_machine_bootstrap.this]
   name             = "nfs-subdir-external-provisioner"
   repository       = "https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner"
   chart            = "nfs-subdir-external-provisioner"

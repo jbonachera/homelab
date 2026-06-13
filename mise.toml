@@ -1,3 +1,7 @@
+[env]
+KUBECONFIG    = "{{config_root}}/tofu/bootstrap/kubeconfig.yaml"
+TALOSCONFIG   = "{{config_root}}/tofu/bootstrap/talosconfig.yaml"
+
 [tools]
 opentofu = "latest"
 talosctl = "latest"
@@ -11,14 +15,22 @@ python              = "3.12"
 "pipx:yamllint"     = "latest"
 pkl = "latest"
 
+[tasks.bootstrap]
+description = "Provision Talos node — push machineconfig, bootstrap etcd, write kubeconfig"
+run         = "tofu -chdir=tofu/bootstrap apply"
+
+[tasks.bootstrap-plan]
+description = "Preview Talos bootstrap changes without applying"
+run         = "tofu -chdir=tofu/bootstrap plan"
+
 [tasks.apply]
-description = "Provision or update the Talos node"
-run         = "tofu -chdir=tofu apply"
+description = "Deploy operators onto an already-bootstrapped cluster"
+run         = "tofu -chdir=tofu/operators apply"
 
 [tasks.plan]
-description = "Preview OpenTofu changes without applying"
-run         = "tofu -chdir=tofu plan"
+description = "Preview operator changes without applying"
+run         = "tofu -chdir=tofu/operators plan"
 
 [tasks.reset]
 description = "Wipe and reprovision the node — requires NODE_IP env var"
-run         = "talosctl reset --reboot --nodes $NODE_IP"
+run         = "talosctl reset --reboot"

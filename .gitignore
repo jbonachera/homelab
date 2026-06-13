@@ -7,6 +7,16 @@ tofu/terraform.tfstate*
 tofu/.terraform.lock*
 tofu/.terraform/
 tofu/kubeconfig.yaml
+tofu/bootstrap/terraform.tfvars
+tofu/bootstrap/terraform.tfstate*
+tofu/bootstrap/.terraform.lock*
+tofu/bootstrap/.terraform/
+tofu/bootstrap/kubeconfig.yaml
+tofu/bootstrap/talosconfig.yaml
+tofu/operators/terraform.tfvars
+tofu/operators/terraform.tfstate*
+tofu/operators/.terraform.lock*
+tofu/operators/.terraform/
 
 # Secrets & local state
 age.key
