@@ -42,6 +42,13 @@ spec:
           image: ghcr.io/home-assistant/home-assistant:2025.6.2
           ports:
             - containerPort: 8123
+          readinessProbe:
+            httpGet:
+              path: /api/
+              port: 8123
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 6
           env:
             - name: DB_PASSWORD
               valueFrom:

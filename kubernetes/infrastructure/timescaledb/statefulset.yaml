@@ -33,6 +33,18 @@ spec:
                   key: password
             - name: POSTGRES_DB
               value: homeassistant
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "homeassistant",
+                        "-d", "homeassistant"]
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              memory: 1Gi
           volumeMounts:
             - name: data
               mountPath: /var/lib/postgresql/data

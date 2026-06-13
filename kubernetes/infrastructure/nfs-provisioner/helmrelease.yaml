@@ -26,3 +26,7 @@ spec:
       name: nfs-client
       defaultClass: true
       reclaimPolicy: Retain
+      mountOptions:
+        - hard
+        - nfsvers=4.1
+        - noatime
