@@ -31,25 +31,25 @@ variable "nfs_path" {
 }
 
 variable "chart_metallb_version" {
-  description = "MetalLB Helm chart version"
+  description = "MetalLB Helm chart version — verify latest at https://artifacthub.io/packages/helm/metallb/metallb"
   type        = string
   default     = "0.14.9"
 }
 
 variable "chart_traefik_version" {
-  description = "Traefik Helm chart version"
+  description = "Traefik Helm chart version — verify latest at https://artifacthub.io/packages/helm/traefik/traefik"
   type        = string
   default     = "34.4.0"
 }
 
 variable "chart_eso_version" {
-  description = "External Secrets Operator Helm chart version"
+  description = "External Secrets Operator Helm chart version — verify latest at https://artifacthub.io/packages/helm/external-secrets-operator/external-secrets"
   type        = string
   default     = "0.11.0"
 }
 
 variable "chart_nfs_version" {
-  description = "NFS subdir external provisioner Helm chart version"
+  description = "NFS subdir external provisioner Helm chart version — verify latest at https://artifacthub.io/packages/helm/nfs-subdir-external-provisioner/nfs-subdir-external-provisioner"
   type        = string
   default     = "4.0.18"
 }
