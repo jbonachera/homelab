@@ -1,14 +1,26 @@
+resource "kubernetes_namespace" "metallb_system" {
+  depends_on = [talos_machine_bootstrap.this]
+
+  metadata {
+    name = "metallb-system"
+    labels = {
+      "pod-security.kubernetes.io/enforce" = "privileged"
+      "pod-security.kubernetes.io/audit"   = "privileged"
+      "pod-security.kubernetes.io/warn"    = "privileged"
+    }
+  }
+}
+
 resource "helm_release" "metallb" {
-  depends_on       = [talos_machine_bootstrap.this]
-  name             = "metallb"
-  repository       = "https://metallb.github.io/metallb"
-  chart            = "metallb"
-  version          = var.chart_metallb_version
-  namespace        = "metallb-system"
-  create_namespace = true
-  wait             = true
-  wait_for_jobs    = true
-  timeout          = 600
+  depends_on    = [kubernetes_namespace.metallb_system]
+  name          = "metallb"
+  repository    = "https://metallb.github.io/metallb"
+  chart         = "metallb"
+  version       = var.chart_metallb_version
+  namespace     = "metallb-system"
+  wait          = true
+  wait_for_jobs = true
+  timeout       = 600
 
   values = [
     yamlencode({
@@ -20,7 +32,7 @@ resource "helm_release" "metallb" {
 }
 
 resource "helm_release" "traefik" {
-  depends_on       = [talos_machine_bootstrap.this]
+  depends_on       = [helm_release.metallb]
   name             = "traefik"
   repository       = "https://traefik.github.io/charts"
   chart            = "traefik"
