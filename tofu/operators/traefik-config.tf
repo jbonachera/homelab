@@ -1,0 +1,27 @@
+resource "kubernetes_manifest" "traefik_dashboard_ingressroute" {
+  depends_on = [helm_release.traefik]
+
+  manifest = {
+    apiVersion = "traefik.io/v1alpha1"
+    kind       = "IngressRoute"
+    metadata = {
+      name      = "traefik-dashboard"
+      namespace = "traefik-system"
+    }
+    spec = {
+      entryPoints = ["web"]
+      routes = [
+        {
+          match = "Host(`dashboard.homelab.lan`)"
+          kind  = "Rule"
+          services = [
+            {
+              name = "api@internal"
+              kind = "TraefikService"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
