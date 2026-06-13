@@ -58,7 +58,6 @@ resource "kubernetes_manifest" "cilium_l2_policy" {
       nodeSelector = {
         matchLabels = {}
       }
-      interfaces      = []
       externalIPs     = true
       loadBalancerIPs = true
     }
