@@ -13,8 +13,10 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-system
+  dependsOn:
+    - name: traefik-operator
   postBuild:
     substituteFrom:
       - kind: ConfigMap
-        name: cluster-vars
+        name: nfs-provisioner-vars
         optional: false
