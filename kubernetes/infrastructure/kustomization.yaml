@@ -12,3 +12,4 @@ resources:
   - nfs-provisioner.yaml
   - sources/external-secrets.yaml
   - external-secrets.yaml
+  - timescaledb.yaml
