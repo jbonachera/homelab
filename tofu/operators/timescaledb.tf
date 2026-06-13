@@ -50,7 +50,14 @@ resource "kubernetes_manifest" "timescaledb_statefulset" {
               name  = "timescaledb"
               image = "timescale/timescaledb:2.17.2-pg16"
               ports = [{ containerPort = 5432 }]
+              securityContext = {
+                runAsUser = 977
+              }
               env = [
+                {
+                  name  = "PGDATA"
+                  value = "/var/lib/postgresql/data/pgdata"
+                },
                 {
                   name = "POSTGRES_USER"
                   valueFrom = {
