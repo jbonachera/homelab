@@ -36,6 +36,18 @@ run = [
 description = "Preview operator changes without applying"
 run         = "tofu -chdir=tofu/operators plan"
 
+[tasks.bootstrap-flux]
+description = "Bootstrap Flux CD onto the cluster using current gh session token"
+run         = """
+export GITHUB_TOKEN=$(gh auth token)
+flux bootstrap github \
+  --owner=jbonachera \
+  --repository=homelab \
+  --branch=main \
+  --path=kubernetes \
+  --personal
+"""
+
 [tasks.reset]
 description = "Wipe and reprovision the node — requires NODE_IP env var"
 run         = "talosctl reset --reboot"

@@ -101,14 +101,10 @@ This generates Talos secrets, bootstraps etcd, writes `tofu/kubeconfig.yaml`, an
 **8. Bootstrap Flux**
 
 ```bash
-export KUBECONFIG=tofu/kubeconfig.yaml
-flux bootstrap github \
-  --owner=<your-github-user> \
-  --repository=homelab \
-  --branch=main \
-  --path=kubernetes \
-  --personal
+mise run bootstrap-flux
 ```
+
+Requires an active `gh` session (`gh auth login`). The task uses `gh auth token` to obtain the current token and passes it to `flux bootstrap github`.
 
 **9. Push the SOPS secret to the cluster**
 
