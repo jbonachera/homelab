@@ -25,7 +25,12 @@ run         = "tofu -chdir=tofu/bootstrap plan"
 
 [tasks.apply]
 description = "Deploy operators onto an already-bootstrapped cluster"
-run         = "tofu -chdir=tofu/operators apply"
+run = [
+  # Pass 1: install Cilium so its CRDs exist before the second pass
+  "tofu -chdir=tofu/operators apply -target=helm_release.cilium -auto-approve",
+  # Pass 2: full apply (CiliumLoadBalancerIPPool + CiliumL2AnnouncementPolicy + Traefik + rest)
+  "tofu -chdir=tofu/operators apply",
+]
 
 [tasks.plan]
 description = "Preview operator changes without applying"
