@@ -8,8 +8,6 @@ spec:
   interval: 10m0s
   path: ./kubernetes/infrastructure/timescaledb
   prune: true
-  wait: true
-  timeout: 5m0s
   sourceRef:
     kind: GitRepository
     name: flux-system
