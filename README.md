@@ -51,70 +51,43 @@ Single-node Kubernetes homelab running [Talos Linux](https://www.talos.dev/), pr
     └── apps/                       # Application manifests
 ```
 
-## Day 0 — initial provisioning
-
-This step is intentionally manual: bare-metal bootstrap cannot be fully automated without a management plane.
-
-**1. Install tools**
+## Getting started
 
 ```bash
+# 1. Install all tools
 mise install
-```
 
-**2. Configure PXE**
+# 2. Configure PXE — point your router's UEFI HTTP boot at the Talos assets for the
+#    version in tofu/bootstrap/terraform.tfvars.example. The node boots into maintenance
+#    mode (port 50000); no config is baked into the PXE image.
 
-Point your router's UEFI HTTP boot at the Talos assets for the version in `tofu/terraform.tfvars.example`. The node boots into Talos maintenance mode (port 50000) — no config is baked into the PXE image.
+# 3. Generate an age keypair — the public key goes into .sops.yaml, the private key stays local
+age-keygen -o age.key
+# Edit .sops.yaml: replace the placeholder age1xxx... with the public key printed above
 
-**3. Create your age key**
+# 4. Copy and fill in variables for both Tofu state roots
+cp tofu/bootstrap/terraform.tfvars.example tofu/bootstrap/terraform.tfvars
+cp tofu/operators/terraform.tfvars.example tofu/operators/terraform.tfvars
+# Edit both files: set node_ip, nfs_server, nfs_path, etc.
 
-```bash
-age-keygen -o age.key   # private key — never commit this
-```
+# 5. Initialise OpenTofu
+tofu -chdir=tofu/bootstrap init
+tofu -chdir=tofu/operators init
 
-The public key is printed to stdout. Copy it.
+# 6. Provision the node (push machineconfig, bootstrap etcd, write kubeconfig)
+mise run bootstrap
 
-**4. Update `.sops.yaml`**
-
-Replace the placeholder `age1xxx...` with your real public key.
-
-**5. Configure OpenTofu variables**
-
-```bash
-cp tofu/terraform.tfvars.example tofu/terraform.tfvars
-# Edit tofu/terraform.tfvars — set node_ip, nfs_server, nfs_path
-```
-
-**6. Initialise OpenTofu**
-
-```bash
-tofu -chdir=tofu init
-```
-
-**7. Provision the node**
-
-```bash
+# 7. Deploy infrastructure operators (MetalLB, Traefik, ESO, NFS provisioner)
 mise run apply
-```
 
-This generates Talos secrets, bootstraps etcd, writes `tofu/kubeconfig.yaml`, and installs the four infrastructure operators (MetalLB, Traefik, External Secrets Operator, NFS provisioner) via Helm — blocking until each is `Ready` and its CRDs are registered.
-
-**8. Bootstrap Flux**
-
-```bash
+# 8. Bootstrap Flux (requires an active gh session: gh auth login)
 mise run bootstrap-flux
-```
 
-Requires an active `gh` session (`gh auth login`). The task uses `gh auth token` to obtain the current token and passes it to `flux bootstrap github`.
-
-**9. Push the SOPS secret to the cluster**
-
-```bash
+# 9. Push the SOPS decryption key to the cluster so Flux can decrypt secrets
 kubectl create secret generic sops-age \
   --namespace=flux-system \
   --from-file=age.agekey=age.key
 ```
-
-Flux can now decrypt `*.secret.yaml` files committed under `kubernetes/`.
 
 ## Day 2 — operations
 
