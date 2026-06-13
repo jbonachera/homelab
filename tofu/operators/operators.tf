@@ -25,50 +25,64 @@ resource "helm_release" "cilium" {
   ]
 }
 
-resource "kubernetes_manifest" "cilium_ip_pool" {
+resource "null_resource" "cilium_ip_pool" {
   depends_on = [helm_release.cilium]
 
-  manifest = {
-    apiVersion = "cilium.io/v2alpha1"
-    kind       = "CiliumLoadBalancerIPPool"
-    metadata = {
-      name = "default-pool"
-    }
-    spec = {
-      blocks = [
-        { cidr = "172.20.1.160/28" }
-      ]
-    }
+  triggers = {
+    manifest = jsonencode({
+      cidr = "172.20.1.160/28"
+    })
+  }
+
+  provisioner "local-exec" {
+    command = <<-EOT
+      kubectl --kubeconfig=${path.module}/../bootstrap/kubeconfig.yaml apply -f - <<EOF
+      apiVersion: cilium.io/v2alpha1
+      kind: CiliumLoadBalancerIPPool
+      metadata:
+        name: default-pool
+      spec:
+        blocks:
+          - cidr: "172.20.1.160/28"
+      EOF
+    EOT
   }
 }
 
-resource "kubernetes_manifest" "cilium_l2_policy" {
-  depends_on = [kubernetes_manifest.cilium_ip_pool]
+resource "null_resource" "cilium_l2_policy" {
+  depends_on = [null_resource.cilium_ip_pool]
 
-  manifest = {
-    apiVersion = "cilium.io/v2alpha1"
-    kind       = "CiliumL2AnnouncementPolicy"
-    metadata = {
-      name = "default"
-    }
-    spec = {
-      serviceSelector = {
-        matchLabels = {}
-      }
-      nodeSelector = {
-        matchLabels = {}
-      }
-      externalIPs     = true
+  triggers = {
+    manifest = jsonencode({
       loadBalancerIPs = true
-    }
+      externalIPs     = true
+    })
+  }
+
+  provisioner "local-exec" {
+    command = <<-EOT
+      kubectl --kubeconfig=${path.module}/../bootstrap/kubeconfig.yaml apply -f - <<EOF
+      apiVersion: cilium.io/v2alpha1
+      kind: CiliumL2AnnouncementPolicy
+      metadata:
+        name: default
+      spec:
+        serviceSelector:
+          matchLabels: {}
+        nodeSelector:
+          matchLabels: {}
+        externalIPs: true
+        loadBalancerIPs: true
+      EOF
+    EOT
   }
 }
 
 resource "helm_release" "traefik" {
   depends_on = [
     helm_release.cilium,
-    kubernetes_manifest.cilium_ip_pool,
-    kubernetes_manifest.cilium_l2_policy,
+    null_resource.cilium_ip_pool,
+    null_resource.cilium_l2_policy,
   ]
   name             = "traefik"
   repository       = "https://traefik.github.io/charts"
