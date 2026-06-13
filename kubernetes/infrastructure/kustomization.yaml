@@ -13,3 +13,4 @@ resources:
   - sources/external-secrets.yaml
   - external-secrets.yaml
   - timescaledb.yaml
+  - timescaledb-config.yaml
