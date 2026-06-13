@@ -28,6 +28,10 @@ spec:
                   'db_url: !env_var DATABASE_URL' \
                   > /config/configuration.yaml
               fi
+              if ! grep -q "use_x_forwarded_for" /config/configuration.yaml; then
+                printf '\nhttp:\n  use_x_forwarded_for: true\n  trusted_proxies:\n    - 10.0.0.0/8\n' \
+                  >> /config/configuration.yaml
+              fi
           resources:
             requests:
               cpu: 10m
@@ -67,7 +71,28 @@ spec:
           volumeMounts:
             - name: config
               mountPath: /config
+        - name: matter-server
+          image: ghcr.io/home-assistant-libs/python-matter-server:7.0.0
+          ports:
+            - containerPort: 5580
+          args:
+            - --storage-path
+            - /data
+            - --paa-trust-store-path
+            - /data/paa-root-certs
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              memory: 256Mi
+          volumeMounts:
+            - name: matter-server-data
+              mountPath: /data
       volumes:
         - name: config
           persistentVolumeClaim:
             claimName: home-assistant-config
+        - name: matter-server-data
+          persistentVolumeClaim:
+            claimName: matter-server-data
