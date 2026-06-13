@@ -8,6 +8,7 @@ resource "helm_release" "metallb" {
   create_namespace = true
   wait             = true
   wait_for_jobs    = true
+  timeout          = 600
 
   values = [
     yamlencode({
@@ -28,6 +29,7 @@ resource "helm_release" "traefik" {
   create_namespace = true
   wait             = true
   wait_for_jobs    = true
+  timeout          = 600
 
   values = [
     yamlencode({
@@ -59,6 +61,9 @@ resource "helm_release" "traefik" {
   ]
 }
 
+# NOTE: Helm does not upgrade CRDs on `helm upgrade`. When bumping chart_eso_version,
+# manually apply updated CRDs first:
+# kubectl apply --server-side -f https://raw.githubusercontent.com/external-secrets/external-secrets/<version>/deploy/crds/
 resource "helm_release" "external_secrets" {
   depends_on       = [talos_machine_bootstrap.this]
   name             = "external-secrets"
@@ -69,6 +74,7 @@ resource "helm_release" "external_secrets" {
   create_namespace = true
   wait             = true
   wait_for_jobs    = true
+  timeout          = 600
 
   values = [
     yamlencode({
@@ -78,7 +84,7 @@ resource "helm_release" "external_secrets" {
 }
 
 resource "helm_release" "nfs_provisioner" {
-  depends_on       = [helm_release.traefik]
+  depends_on       = [talos_machine_bootstrap.this]
   name             = "nfs-subdir-external-provisioner"
   repository       = "https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner"
   chart            = "nfs-subdir-external-provisioner"
@@ -87,6 +93,7 @@ resource "helm_release" "nfs_provisioner" {
   create_namespace = true
   wait             = true
   wait_for_jobs    = true
+  timeout          = 600
 
   values = [
     yamlencode({
