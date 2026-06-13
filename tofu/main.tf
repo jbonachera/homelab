@@ -8,6 +8,16 @@ terraform {
       source  = "hashicorp/local"
       version = "~> 2.5"
     }
+    helm = {
+      source  = "hashicorp/helm"
+      version = "~> 2.16"
+    }
+  }
+}
+
+provider "helm" {
+  kubernetes {
+    config_path = "${path.module}/kubeconfig.yaml"
   }
 }
 

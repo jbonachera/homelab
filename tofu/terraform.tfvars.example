@@ -4,3 +4,12 @@
 node_ip       = ""         # IP address of the Talos node
 cluster_name  = "homelab"  # Kubernetes cluster name
 talos_version = "v1.13.0"  # Must match the version served by PXE
+
+nfs_server = ""  # IP address of the NFS server (e.g. "172.20.2.150")
+nfs_path   = ""  # NFS export path (e.g. "/var/nfs/shared/K8S")
+
+# Chart versions — override defaults here if pinning to specific versions
+# chart_metallb_version = "0.14.9"
+# chart_traefik_version = "34.4.0"
+# chart_eso_version     = "0.11.0"
+# chart_nfs_version     = "4.0.18"

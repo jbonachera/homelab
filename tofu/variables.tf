@@ -19,3 +19,37 @@ variable "talos_version" {
     error_message = "talos_version must be a semver string like v1.13.0."
   }
 }
+
+variable "nfs_server" {
+  description = "IP address of the NFS server"
+  type        = string
+}
+
+variable "nfs_path" {
+  description = "NFS export path (e.g. /var/nfs/shared/K8S)"
+  type        = string
+}
+
+variable "chart_metallb_version" {
+  description = "MetalLB Helm chart version"
+  type        = string
+  default     = "0.14.9"
+}
+
+variable "chart_traefik_version" {
+  description = "Traefik Helm chart version"
+  type        = string
+  default     = "34.4.0"
+}
+
+variable "chart_eso_version" {
+  description = "External Secrets Operator Helm chart version"
+  type        = string
+  default     = "0.11.0"
+}
+
+variable "chart_nfs_version" {
+  description = "NFS subdir external provisioner Helm chart version"
+  type        = string
+  default     = "4.0.18"
+}
