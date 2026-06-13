@@ -7,8 +7,8 @@ Single-node Kubernetes homelab running [Talos Linux](https://www.talos.dev/), pr
 | Layer | Tool |
 |-------|------|
 | OS | [Talos Linux](https://www.talos.dev/) v1.13 — immutable, API-only, no SSH |
-| Infra-as-code | [OpenTofu](https://opentofu.org/) + [siderolabs/talos](https://github.com/siderolabs/terraform-provider-talos) provider |
-| GitOps | [Flux CD](https://fluxcd.io/) — watches `kubernetes/` |
+| Infra-as-code | [OpenTofu](https://opentofu.org/) — Talos bootstrap + infrastructure operators (Helm) |
+| GitOps | [Flux CD](https://fluxcd.io/) — watches `kubernetes/` (CRD configs + apps) |
 | Secrets | [SOPS](https://github.com/getsops/sops) + [age](https://age-encryption.org/) |
 | PXE | dnsmasq on router (UEFI HTTP boot) |
 | Tool versions | [mise](https://mise.jdx.dev/) |
@@ -39,15 +39,16 @@ Single-node Kubernetes homelab running [Talos Linux](https://www.talos.dev/), pr
 │       ├── all.yaml                # Patches applied to every node
 │       └── controlplane.yaml      # Control-plane-specific patches
 ├── tofu/
-│   ├── main.tf                     # Talos secrets, machineconfig, bootstrap, kubeconfig
+│   ├── main.tf                     # Talos bootstrap + Helm/Kubernetes providers
+│   ├── operators.tf                # Helm releases: MetalLB, Traefik, ESO, NFS provisioner
 │   ├── variables.tf
 │   ├── outputs.tf
 │   └── terraform.tfvars.example   # Copy to terraform.tfvars and fill in
 └── kubernetes/
-    ├── infrastructure.yaml         # Flux Kustomization — infra layer
+    ├── infrastructure.yaml         # Flux Kustomization — infra layer (CRD configs)
     ├── apps.yaml                   # Flux Kustomization — apps layer
-    ├── infrastructure/             # Add HelmReleases, namespaces, etc. here
-    └── apps/                       # Add application manifests here
+    ├── infrastructure/             # CRD-layer configs (MetalLB pool, Traefik routes, ESO stores, TimescaleDB)
+    └── apps/                       # Application manifests
 ```
 
 ## Day 0 — initial provisioning
@@ -80,7 +81,7 @@ Replace the placeholder `age1xxx...` with your real public key.
 
 ```bash
 cp tofu/terraform.tfvars.example tofu/terraform.tfvars
-# Edit tofu/terraform.tfvars — set node_ip to the machine's IP
+# Edit tofu/terraform.tfvars — set node_ip, nfs_server, nfs_path
 ```
 
 **6. Initialise OpenTofu**
@@ -95,7 +96,7 @@ tofu -chdir=tofu init
 mise run apply
 ```
 
-This generates Talos secrets, pushes machineconfig to the node via the maintenance API, bootstraps etcd, and writes `tofu/kubeconfig.yaml`.
+This generates Talos secrets, bootstraps etcd, writes `tofu/kubeconfig.yaml`, and installs the four infrastructure operators (MetalLB, Traefik, External Secrets Operator, NFS provisioner) via Helm — blocking until each is `Ready` and its CRDs are registered.
 
 **8. Bootstrap Flux**
 
@@ -142,9 +143,13 @@ NODE_IP=<node-ip> mise run reset   # wipes the node; it reboots into maintenance
 mise run apply                     # re-applies machineconfig and re-bootstraps
 ```
 
-**Add infrastructure or applications**
+**Add infrastructure operators**
 
-Drop manifests into `kubernetes/infrastructure/` or `kubernetes/apps/` and commit. Flux reconciles automatically. Encrypt secrets before committing:
+Operators (anything that installs CRDs) go in `tofu/operators.tf` as `helm_release` resources. Their Custom Resources (configs, routes, secret stores) go in `kubernetes/infrastructure/`.
+
+**Add applications**
+
+Drop manifests into `kubernetes/apps/` and commit. Flux reconciles automatically. Encrypt secrets before committing:
 
 ```bash
 sops --encrypt --in-place kubernetes/<path>/<name>.secret.yaml
@@ -161,6 +166,16 @@ mise exec -- yamllint kubernetes/ talos/
 1. Update `talos_version` in `tofu/terraform.tfvars`
 2. Update PXE assets on the router to the new version
 3. `mise run apply`
+
+**Upgrade an operator chart** (MetalLB, Traefik, ESO, NFS)
+
+1. Update the relevant `chart_*_version` variable in `tofu/terraform.tfvars`
+2. `mise run apply`
+
+> Note: ESO CRDs are not upgraded automatically by `helm upgrade`. When bumping `chart_eso_version`, apply the new CRDs manually first:
+> ```bash
+> kubectl apply --server-side -f https://raw.githubusercontent.com/external-secrets/external-secrets/<version>/deploy/crds/
+> ```
 
 ## Security
 
