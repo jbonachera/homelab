@@ -8,10 +8,15 @@ variable "nfs_path" {
   type        = string
 }
 
-variable "chart_metallb_version" {
-  description = "MetalLB Helm chart version — verify latest at https://artifacthub.io/packages/helm/metallb/metallb"
+variable "chart_cilium_version" {
+  description = "Cilium Helm chart version — verify latest at https://artifacthub.io/packages/helm/cilium/cilium"
   type        = string
-  default     = "0.14.9"
+  default     = "1.17.3"
+}
+
+variable "node_ip" {
+  description = "IP address of the Kubernetes API server node (used for kubeProxyReplacement)"
+  type        = string
 }
 
 variable "chart_traefik_version" {

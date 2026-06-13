@@ -4,8 +4,10 @@
 nfs_server = ""  # IP address of the NFS server (e.g. "172.20.2.150")
 nfs_path   = ""  # NFS export path (e.g. "/var/nfs/shared/K8S")
 
+node_ip = ""  # IP of the Talos node / kube-apiserver (e.g. "172.20.1.100")
+
 # Chart versions — override defaults here if pinning to specific versions
-# chart_metallb_version = "0.14.9"
+# chart_cilium_version  = "1.17.3"
 # chart_traefik_version = "34.4.0"
 # chart_eso_version     = "0.11.0"
 # chart_nfs_version     = "4.0.18"

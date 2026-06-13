@@ -1,36 +1,76 @@
-resource "kubernetes_namespace" "metallb_system" {
-  metadata {
-    name = "metallb-system"
-    labels = {
-      "pod-security.kubernetes.io/enforce" = "privileged"
-      "pod-security.kubernetes.io/audit"   = "privileged"
-      "pod-security.kubernetes.io/warn"    = "privileged"
-    }
-  }
-}
-
-resource "helm_release" "metallb" {
-  depends_on    = [kubernetes_namespace.metallb_system]
-  name          = "metallb"
-  repository    = "https://metallb.github.io/metallb"
-  chart         = "metallb"
-  version       = var.chart_metallb_version
-  namespace     = "metallb-system"
-  wait          = true
-  wait_for_jobs = true
-  timeout       = 600
+resource "helm_release" "cilium" {
+  name       = "cilium"
+  repository = "https://helm.cilium.io"
+  chart      = "cilium"
+  version    = var.chart_cilium_version
+  namespace  = "kube-system"
+  wait       = true
+  timeout    = 600
 
   values = [
     yamlencode({
-      speaker = {
-        ignoreExcludeLB = true
+      kubeProxyReplacement = true
+      k8sServiceHost       = var.node_ip
+      k8sServicePort       = 6443
+      operator = {
+        replicas = 1
+      }
+      l2announcements = {
+        enabled = true
+      }
+      externalIPs = {
+        enabled = true
       }
     })
   ]
 }
 
+resource "kubernetes_manifest" "cilium_ip_pool" {
+  depends_on = [helm_release.cilium]
+
+  manifest = {
+    apiVersion = "cilium.io/v2alpha1"
+    kind       = "CiliumLoadBalancerIPPool"
+    metadata = {
+      name = "default-pool"
+    }
+    spec = {
+      blocks = [
+        { cidr = "172.20.1.160/28" }
+      ]
+    }
+  }
+}
+
+resource "kubernetes_manifest" "cilium_l2_policy" {
+  depends_on = [kubernetes_manifest.cilium_ip_pool]
+
+  manifest = {
+    apiVersion = "cilium.io/v2alpha1"
+    kind       = "CiliumL2AnnouncementPolicy"
+    metadata = {
+      name = "default"
+    }
+    spec = {
+      serviceSelector = {
+        matchLabels = {}
+      }
+      nodeSelector = {
+        matchLabels = {}
+      }
+      interfaces      = []
+      externalIPs     = true
+      loadBalancerIPs = true
+    }
+  }
+}
+
 resource "helm_release" "traefik" {
-  depends_on       = [helm_release.metallb]
+  depends_on = [
+    helm_release.cilium,
+    kubernetes_manifest.cilium_ip_pool,
+    kubernetes_manifest.cilium_l2_policy,
+  ]
   name             = "traefik"
   repository       = "https://traefik.github.io/charts"
   chart            = "traefik"
