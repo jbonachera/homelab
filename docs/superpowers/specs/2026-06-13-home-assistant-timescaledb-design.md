@@ -49,7 +49,7 @@ external-secrets ┘
 
 - **Chart:** `nfs-subdir-external-provisioner` from the official Helm repo
 - **StorageClass name:** `nfs-client` (default, set as cluster default)
-- **NFS server + path:** configured via `values` in the HelmRelease (not committed — injected via a ConfigMap or Flux variable substitution referencing a gitignored file)
+- **NFS server + path:** configured via Flux variable substitution (`postBuild.substituteFrom`) referencing a `cluster-vars` ConfigMap populated from a gitignored `.cluster-vars.yaml` file. Variables: `${NFS_SERVER}` and `${NFS_PATH}`.
 - All PVCs in the cluster use `storageClassName: nfs-client`
 
 ## TimescaleDB
@@ -64,7 +64,7 @@ external-secrets ┘
 
 ### TimescaleDB compression
 
-A TimescaleDB compression policy is applied post-init via a Kubernetes Job that runs `ALTER TABLE ... SET (timescaledb.compress)` and `add_compression_policy()` on the HA history tables. The Job runs once after the StatefulSet is ready, triggered by a Flux dependency. Data older than 30 days is compressed automatically.
+A TimescaleDB compression policy is applied post-init via a Kubernetes Job included in the `timescaledb/` directory. The Job runs `ALTER TABLE ... SET (timescaledb.compress)` and `add_compression_policy()` on the HA history tables once the StatefulSet is Ready (enforced via an `initContainer` that polls `pg_isready`). Data older than 30 days is compressed automatically.
 
 ### Environment variables
 
@@ -150,7 +150,18 @@ The `DATABASE_URL` env var is injected from the copied Secret:
 postgresql://homeassistant:<password>@timescaledb.database.svc.cluster.local/homeassistant
 ```
 
-The Deployment constructs this URL in an init container or via `envFrom` + `valueFrom.secretKeyRef`, concatenating the static prefix with the secret `password` key.
+The Deployment constructs the URL via Kubernetes env var substitution:
+
+```yaml
+env:
+  - name: DB_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: timescaledb-credentials
+        key: password
+  - name: DATABASE_URL
+    value: "postgresql://homeassistant:$(DB_PASSWORD)@timescaledb.database.svc.cluster.local/homeassistant"
+```
 
 ### Networking
 
