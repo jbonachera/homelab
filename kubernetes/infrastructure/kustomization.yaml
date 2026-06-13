@@ -10,3 +10,5 @@ resources:
   - traefik-config.yaml
   - sources/nfs-provisioner.yaml
   - nfs-provisioner.yaml
+  - sources/external-secrets.yaml
+  - external-secrets.yaml
