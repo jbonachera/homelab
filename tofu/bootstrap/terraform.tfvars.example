@@ -4,3 +4,4 @@
 node_ip       = ""         # IP address of the Talos node
 cluster_name  = "homelab"  # Kubernetes cluster name
 talos_version = "v1.13.0"  # Must match the version served by PXE
+worker_ip     = "192.168.1.XXX"  # IP DHCP du worker au moment du provisioning

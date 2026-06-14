@@ -1,0 +1,12 @@
+{
+  "planPath": "docs/superpowers/plans/2026-06-13-homebridge.md",
+  "tasks": [
+    {
+      "id": 1,
+      "subject": "Task 1: Créer les manifests Kubernetes Homebridge",
+      "status": "pending",
+      "description": "**Goal:** Créer les 6 fichiers manifests dans `kubernetes/apps/homebridge/` et enregistrer l'app dans Flux.\n\n**Files:**\n- Create: `kubernetes/apps/homebridge/namespace.yaml`\n- Create: `kubernetes/apps/homebridge/pvc.yaml`\n- Create: `kubernetes/apps/homebridge/deployment.yaml`\n- Create: `kubernetes/apps/homebridge/service.yaml`\n- Create: `kubernetes/apps/homebridge/ingress.yaml`\n- Create: `kubernetes/apps/homebridge/kustomization.yaml`\n- Create: `kubernetes/apps/homebridge.yaml`\n- Modify: `kubernetes/apps/kustomization.yaml`\n\n**Acceptance Criteria:**\n- [ ] `yamllint kubernetes/apps/homebridge/` passe sans erreur\n- [ ] Le Deployment a `hostNetwork: true` et `dnsPolicy: ClusterFirstWithHostNet`\n- [ ] Le namespace a le label `pod-security.kubernetes.io/enforce: privileged`\n- [ ] La kustomization Flux `homebridge.yaml` référence le bon path et dépend de `infrastructure`\n\n**Verify:** `mise exec -- yamllint kubernetes/apps/homebridge/ kubernetes/apps/homebridge.yaml` → no errors\n\n```json:metadata\n{\"files\": [\"kubernetes/apps/homebridge/namespace.yaml\",\"kubernetes/apps/homebridge/pvc.yaml\",\"kubernetes/apps/homebridge/deployment.yaml\",\"kubernetes/apps/homebridge/service.yaml\",\"kubernetes/apps/homebridge/ingress.yaml\",\"kubernetes/apps/homebridge/kustomization.yaml\",\"kubernetes/apps/homebridge.yaml\",\"kubernetes/apps/kustomization.yaml\"], \"verifyCommand\": \"mise exec -- yamllint kubernetes/apps/homebridge/ kubernetes/apps/homebridge.yaml kubernetes/apps/kustomization.yaml\", \"acceptanceCriteria\": [\"yamllint passe sans erreur\", \"hostNetwork: true et dnsPolicy: ClusterFirstWithHostNet présents\", \"namespace label privileged présent\", \"Flux Kustomization dépend de infrastructure\"]}\n```"
+    }
+  ],
+  "lastUpdated": "2026-06-13T00:00:00Z"
+}

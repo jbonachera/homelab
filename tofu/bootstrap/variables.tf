@@ -19,3 +19,8 @@ variable "talos_version" {
     error_message = "talos_version must be a semver string like v1.13.0."
   }
 }
+
+variable "worker_ip" {
+  description = "IP address of the Talos worker node at provisioning time (DHCP — used only for initial config push)"
+  type        = string
+}

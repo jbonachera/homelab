@@ -1,0 +1,26 @@
+{
+  "planPath": "docs/superpowers/plans/2026-06-13-worker-node-kubespan.md",
+  "tasks": [
+    {
+      "id": 1,
+      "subject": "Task 1: Activer KubeSpan dans all.yaml et re-appliquer au control plane",
+      "status": "pending",
+      "description": "**Goal:** Ajouter KubeSpan à `talos/patches/all.yaml` et pousser la config mise à jour au control plane existant.\n\n**Files:**\n- Modify: `talos/patches/all.yaml`\n\n**Acceptance Criteria:**\n- [ ] `talos/patches/all.yaml` contient le bloc `network.kubespan.enabled: true`\n- [ ] `tofu apply` dans `tofu/bootstrap/` se termine sans erreur\n- [ ] `talosctl get kubespanidentities -n <NODE_IP>` retourne une identité KubeSpan\n\n**Verify:** `talosctl get kubespanidentities -n <NODE_IP> --talosconfig tofu/bootstrap/talosconfig.yaml` → retourne une ligne avec l'identité KubeSpan du noeud\n\n```json:metadata\n{\"files\": [\"talos/patches/all.yaml\"], \"verifyCommand\": \"talosctl get kubespanidentities -n <NODE_IP> --talosconfig tofu/bootstrap/talosconfig.yaml\", \"acceptanceCriteria\": [\"talos/patches/all.yaml contient network.kubespan.enabled: true\", \"tofu apply réussit sans erreur\", \"talosctl get kubespanidentities retourne une identité KubeSpan\"]}\n```"
+    },
+    {
+      "id": 2,
+      "subject": "Task 2: Créer le patch worker et les ressources OpenTofu du worker",
+      "status": "pending",
+      "blockedBy": [1],
+      "description": "**Goal:** Ajouter le patch `talos/patches/worker.yaml` et les ressources OpenTofu pour provisionner le worker.\n\n**Files:**\n- Create: `talos/patches/worker.yaml`\n- Modify: `tofu/bootstrap/variables.tf`\n- Modify: `tofu/bootstrap/main.tf`\n\n**Acceptance Criteria:**\n- [ ] `talos/patches/worker.yaml` existe (patch vide valide)\n- [ ] `variables.tf` contient la variable `worker_ip`\n- [ ] `main.tf` contient `data.talos_machine_configuration.worker` et `talos_machine_configuration_apply.worker`\n- [ ] `tofu validate` dans `tofu/bootstrap/` passe sans erreur\n- [ ] `tofu plan -var worker_ip=1.2.3.4` montre les nouvelles ressources sans erreur\n\n**Verify:** `cd tofu/bootstrap && tofu validate` → `Success! The configuration is valid.`\n\n```json:metadata\n{\"files\": [\"talos/patches/worker.yaml\", \"tofu/bootstrap/variables.tf\", \"tofu/bootstrap/main.tf\", \"tofu/bootstrap/terraform.tfvars.example\"], \"verifyCommand\": \"cd tofu/bootstrap && tofu validate\", \"acceptanceCriteria\": [\"talos/patches/worker.yaml existe\", \"variables.tf contient worker_ip\", \"main.tf contient talos_machine_configuration_apply.worker\", \"tofu validate passe sans erreur\"]}\n```"
+    },
+    {
+      "id": 3,
+      "subject": "Task 3: Booter le noeud worker et le joindre au cluster",
+      "status": "pending",
+      "blockedBy": [2],
+      "description": "**Goal:** Démarrer le noeud worker en PXE, pousser sa machineconfig, et vérifier qu'il rejoint le cluster avec KubeSpan actif.\n\n**Files:**\n- Modify: `tofu/bootstrap/terraform.tfvars` (non-commité, gitignored)\n\n**Acceptance Criteria:**\n- [ ] `kubectl get nodes` montre le worker avec statut `Ready`\n- [ ] `talosctl get kubespanidentities -n <WORKER_IP>` retourne une identité KubeSpan\n- [ ] `talosctl get kubespanpeers -n <NODE_IP>` montre le worker comme peer connecté\n\n**Verify:** `kubectl get nodes --kubeconfig tofu/bootstrap/kubeconfig.yaml` → deux lignes, les deux en `Ready`\n\n```json:metadata\n{\"files\": [\"tofu/bootstrap/terraform.tfvars\"], \"verifyCommand\": \"kubectl get nodes --kubeconfig tofu/bootstrap/kubeconfig.yaml\", \"acceptanceCriteria\": [\"kubectl get nodes montre le worker en Ready\", \"talosctl get kubespanidentities retourne une identité sur le worker\", \"talosctl get kubespanpeers montre le worker comme peer connecté\"]}\n```"
+    }
+  ],
+  "lastUpdated": "2026-06-13T00:00:00Z"
+}

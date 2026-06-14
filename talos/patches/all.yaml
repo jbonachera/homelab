@@ -6,3 +6,6 @@ machine:
       - pool.ntp.org
   nodeLabels:
     homelab/iot-gateway: "true"
+  network:
+    kubespan:
+      enabled: true
