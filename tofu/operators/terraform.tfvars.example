@@ -6,6 +6,11 @@ nfs_path   = ""  # NFS export path (e.g. "/var/nfs/shared/K8S")
 
 node_ip = ""  # IP of the Talos node / kube-apiserver (e.g. "172.20.1.100")
 
+# BGP peering (eBGP toward UDMP)
+# udmp_asn   = 64521        # BGP ASN of the UDMP
+# udmp_ip    = "172.20.3.1" # IP of the UDMP BGP peer
+# cilium_asn = 64872        # BGP ASN for Cilium
+
 # Chart versions — override defaults here if pinning to specific versions
 # chart_cilium_version  = "1.17.3"
 # chart_traefik_version = "34.4.0"

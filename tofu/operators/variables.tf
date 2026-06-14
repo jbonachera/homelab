@@ -36,3 +36,21 @@ variable "chart_nfs_version" {
   type        = string
   default     = "4.0.18"
 }
+
+variable "udmp_asn" {
+  description = "BGP ASN of the Unifi Dream Machine Pro"
+  type        = number
+  default     = 64521
+}
+
+variable "udmp_ip" {
+  description = "IP address of the UDMP BGP peer"
+  type        = string
+  default     = "172.20.3.1"
+}
+
+variable "cilium_asn" {
+  description = "BGP ASN assigned to the Cilium BGP control plane"
+  type        = number
+  default     = 64872
+}
