@@ -18,9 +18,8 @@ resource "helm_release" "cilium" {
       bgpControlPlane = {
         enabled = true
       }
-      # Single-node: no direct routing between nodes needed
       directRoutingDevice  = var.node_interface
-      autoDirectNodeRoutes = false
+      autoDirectNodeRoutes = true
       # Talos-specific: cgroup is pre-mounted by Talos, don't let Cilium remount it
       cgroup = {
         autoMount = { enabled = false }

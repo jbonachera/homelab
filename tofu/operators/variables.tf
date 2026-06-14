@@ -38,9 +38,9 @@ variable "chart_nfs_version" {
 }
 
 variable "node_interface" {
-  description = "Primary ethernet interface name on the Talos node (e.g. eno1, enp3s0)"
+  description = "Regexp matching the primary ethernet interface(s) on cluster nodes (e.g. ^eno to match eno1, enp0s31f6, etc.)"
   type        = string
-  default     = "eno1"
+  default     = "^en"
 }
 
 variable "udmp_asn" {
