@@ -15,10 +15,7 @@ resource "helm_release" "cilium" {
       operator = {
         replicas = 1
       }
-      l2announcements = {
-        enabled = true
-      }
-      externalIPs = {
+      bgpControlPlane = {
         enabled = true
       }
       # Talos-specific: cgroup is pre-mounted by Talos, don't let Cilium remount it
@@ -48,39 +45,58 @@ resource "kubernetes_manifest" "cilium_ip_pool" {
     }
     spec = {
       blocks = [
-        { cidr = "172.20.3.208/28" }
+        { cidr = "172.20.150.0/24" }
       ]
     }
   }
 }
 
-resource "kubernetes_manifest" "cilium_l2_policy" {
+resource "kubernetes_manifest" "cilium_bgp_cluster_config" {
   depends_on = [kubernetes_manifest.cilium_ip_pool]
 
   manifest = {
     apiVersion = "cilium.io/v2alpha1"
-    kind       = "CiliumL2AnnouncementPolicy"
+    kind       = "CiliumBGPClusterConfig"
     metadata = {
       name = "default"
     }
     spec = {
-      serviceSelector = {
-        matchLabels = {}
-      }
       nodeSelector = {
         matchLabels = {}
       }
-      externalIPs     = true
-      loadBalancerIPs = true
+      bgpInstances = [
+        {
+          name     = "default"
+          localASN = var.cilium_asn
+          peers = [
+            {
+              name        = "udmp"
+              peerASN     = var.udmp_asn
+              peerAddress = var.udmp_ip
+            }
+          ]
+        }
+      ]
     }
   }
+}
+
+resource "local_sensitive_file" "udmp_frr_config" {
+  depends_on = [kubernetes_manifest.cilium_bgp_cluster_config]
+  filename   = "${path.module}/udmp-frr.conf"
+  content = templatefile("${path.module}/templates/udmp-frr.conf.tftpl", {
+    udmp_asn   = var.udmp_asn
+    udmp_ip    = var.udmp_ip
+    cilium_asn = var.cilium_asn
+    node_ip    = var.node_ip
+  })
 }
 
 resource "helm_release" "traefik" {
   depends_on = [
     helm_release.cilium,
     kubernetes_manifest.cilium_ip_pool,
-    kubernetes_manifest.cilium_l2_policy,
+    kubernetes_manifest.cilium_bgp_cluster_config,
   ]
   name             = "traefik"
   repository       = "https://traefik.github.io/charts"
