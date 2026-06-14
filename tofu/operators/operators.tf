@@ -81,8 +81,39 @@ resource "kubernetes_manifest" "cilium_bgp_cluster_config" {
   }
 }
 
-resource "local_sensitive_file" "udmp_frr_config" {
+resource "kubernetes_manifest" "cilium_bgp_advertisement" {
   depends_on = [kubernetes_manifest.cilium_bgp_cluster_config]
+
+  manifest = {
+    apiVersion = "cilium.io/v2alpha1"
+    kind       = "CiliumBGPAdvertisement"
+    metadata = {
+      name = "default"
+      labels = {
+        "bgp" = "default"
+      }
+    }
+    spec = {
+      advertisements = [
+        {
+          advertisementType = "LBIPAMPools"
+          selector = {
+            matchExpressions = [
+              {
+                key      = "io.cilium/bgp-virtual-router.${var.cilium_asn}"
+                operator = "NotIn"
+                values   = ["disabled"]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}
+
+resource "local_sensitive_file" "udmp_frr_config" {
+  depends_on = [kubernetes_manifest.cilium_bgp_advertisement]
   filename   = "${path.module}/udmp-frr.conf"
   content = templatefile("${path.module}/templates/udmp-frr.conf.tftpl", {
     udmp_asn   = var.udmp_asn
