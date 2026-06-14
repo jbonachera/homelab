@@ -30,7 +30,7 @@ run = [
   # Pass 1: install Cilium so its CRDs exist before the second pass
   "tofu -chdir=tofu/operators apply -target=helm_release.cilium -auto-approve",
   # Pass 2: full apply (CiliumLoadBalancerIPPool + CiliumL2AnnouncementPolicy + Traefik + rest)
-  "tofu -chdir=tofu/operators apply",
+  "tofu -chdir=tofu/operators apply -auto-approve",
 ]
 
 [tasks.plan]

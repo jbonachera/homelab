@@ -1,9 +1,9 @@
 router bgp ${udmp_asn}
   bgp router-id ${udmp_ip}
-  neighbor ${node_ip} remote-as ${cilium_asn}
-  neighbor ${node_ip} description cilium-homelab
-  !
-  address-family ipv4 unicast
-    neighbor ${node_ip} activate
-    neighbor ${node_ip} soft-reconfiguration inbound
-  exit-address-family
+  bgp bestpath as-path multipath-relax
+  no bgp ebgp-requires-policy
+  neighbor k8s peer-group
+  neighbor k8s remote-as external
+%{ for ip in node_ips ~}
+  neighbor ${ip} peer-group k8s
+%{ endfor ~}

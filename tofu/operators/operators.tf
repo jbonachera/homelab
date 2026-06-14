@@ -19,9 +19,6 @@ resource "helm_release" "cilium" {
       bgpControlPlane = {
         enabled = true
       }
-      # Explicit device required: Cilium cannot auto-detect the interface on Talos
-      # (interfaces are dynamically named). Run `talosctl get addresses` to confirm.
-      # devices = var.cilium_devices
       bpf = {
         masquerade = true
       }
@@ -51,15 +48,41 @@ resource "kubernetes_manifest" "cilium_ip_pool" {
       name = "default-pool"
     }
     spec = {
+      allowFirstLastIPs = "No"
       blocks = [
-        { cidr = "172.20.150.1/24" }
+        { cidr = "172.20.155.0/24" }
+      ]
+    }
+  }
+}
+
+resource "kubernetes_manifest" "cilium_bgp_peer_config" {
+  depends_on = [kubernetes_manifest.cilium_ip_pool]
+
+  manifest = {
+    apiVersion = "cilium.io/v2alpha1"
+    kind       = "CiliumBGPPeerConfig"
+    metadata = {
+      name = "udmp-peer"
+    }
+    spec = {
+      families = [
+        {
+          afi  = "ipv4"
+          safi = "unicast"
+          advertisements = {
+            matchLabels = {
+              bgp = "default"
+            }
+          }
+        }
       ]
     }
   }
 }
 
 resource "kubernetes_manifest" "cilium_bgp_cluster_config" {
-  depends_on = [kubernetes_manifest.cilium_ip_pool]
+  depends_on = [kubernetes_manifest.cilium_bgp_peer_config]
 
   manifest = {
     apiVersion = "cilium.io/v2alpha1"
@@ -68,21 +91,17 @@ resource "kubernetes_manifest" "cilium_bgp_cluster_config" {
       name = "default"
     }
     spec = {
-      nodeSelector = {
-        matchLabels = {
-          "kubernetes.io/os" = "linux"
-        }
-      }
       bgpInstances = [
         {
-          name     = "default"
-          localASN = var.cilium_asn
+          name      = "default"
+          localASN  = var.cilium_asn
+          localPort = 179
           peers = [
             {
-              name             = "udmp"
-              peerASN          = var.udmp_asn
-              peerAddress      = var.udmp_ip
-              advertisementRef = { name = "default" }
+              name          = "udmp"
+              peerASN       = var.udmp_asn
+              peerAddress   = var.udmp_ip
+              peerConfigRef = { name = "udmp-peer" }
             }
           ]
         }
@@ -108,7 +127,10 @@ resource "kubernetes_manifest" "cilium_bgp_advertisement" {
         {
           advertisementType = "Service"
           service = {
-            addresses = ["LoadBalancerIP"]
+            addresses = ["LoadBalancerIP", "ExternalIP"]
+          }
+          selector = {
+            matchLabels = {}
           }
         }
       ]
@@ -123,7 +145,7 @@ resource "local_sensitive_file" "udmp_frr_config" {
     udmp_asn   = var.udmp_asn
     udmp_ip    = var.udmp_ip
     cilium_asn = var.cilium_asn
-    node_ip    = var.node_ip
+    node_ips   = var.node_ips
   })
 }
 

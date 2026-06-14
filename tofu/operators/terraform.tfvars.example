@@ -4,7 +4,8 @@
 nfs_server = ""  # IP address of the NFS server (e.g. "172.20.2.150")
 nfs_path   = ""  # NFS export path (e.g. "/var/nfs/shared/K8S")
 
-node_ip = ""  # IP of the Talos node / kube-apiserver (e.g. "172.20.1.100")
+node_ip  = ""  # IP of the Talos control-plane node / kube-apiserver (e.g. "172.20.1.100")
+node_ips = [] # IPs of all cluster nodes for BGP neighbor declarations (e.g. ["172.20.1.100", "172.20.1.101"])
 
 # BGP peering (eBGP toward UDMP)
 # udmp_asn   = 64521        # BGP ASN of the UDMP

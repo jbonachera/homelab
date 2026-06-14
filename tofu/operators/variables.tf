@@ -19,6 +19,11 @@ variable "node_ip" {
   type        = string
 }
 
+variable "node_ips" {
+  description = "IP addresses of all cluster nodes (used for BGP neighbor declarations on the UDM Pro)"
+  type        = list(string)
+}
+
 variable "chart_traefik_version" {
   description = "Traefik Helm chart version — verify latest at https://artifacthub.io/packages/helm/traefik/traefik"
   type        = string
