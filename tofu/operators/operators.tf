@@ -105,9 +105,6 @@ resource "kubernetes_manifest" "cilium_bgp_advertisement" {
           service = {
             addresses = ["LoadBalancerIP"]
           }
-          selector = {
-            matchLabels = {}
-          }
         }
       ]
     }
