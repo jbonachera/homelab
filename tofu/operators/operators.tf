@@ -18,16 +18,6 @@ resource "helm_release" "cilium" {
       bgpControlPlane = {
         enabled = true
       }
-      # Native routing + KubeSpan compatibility (siderolabs/docs#553):
-      # hostLegacyRouting forces pod traffic through kernel stack so Wireguard intercepts it.
-      # directRoutingDevice is required when hostLegacyRouting is enabled.
-      routingMode           = "native"
-      directRoutingDevice   = "^en"
-      ipv4NativeRoutingCIDR = "10.244.0.0/16"
-      bpf = {
-        masquerade        = true
-        hostLegacyRouting = true
-      }
       # Talos-specific: cgroup is pre-mounted by Talos, don't let Cilium remount it
       cgroup = {
         autoMount = { enabled = false }
