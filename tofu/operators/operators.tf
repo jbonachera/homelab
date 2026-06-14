@@ -19,7 +19,7 @@ resource "helm_release" "cilium" {
         enabled = true
       }
       # KubeSpan adds multiple interfaces; pin Cilium to the physical NIC
-      devices = "eno+"
+      devices = "en+"
       # Talos-specific: cgroup is pre-mounted by Talos, don't let Cilium remount it
       cgroup = {
         autoMount = { enabled = false }
