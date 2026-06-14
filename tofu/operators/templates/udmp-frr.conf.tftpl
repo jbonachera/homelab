@@ -1,0 +1,9 @@
+router bgp ${udmp_asn}
+  bgp router-id ${udmp_ip}
+  neighbor ${node_ip} remote-as ${cilium_asn}
+  neighbor ${node_ip} description cilium-homelab
+  !
+  address-family ipv4 unicast
+    neighbor ${node_ip} activate
+    neighbor ${node_ip} soft-reconfiguration inbound
+  exit-address-family

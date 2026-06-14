@@ -17,6 +17,7 @@ tofu/operators/terraform.tfvars
 tofu/operators/terraform.tfstate*
 tofu/operators/.terraform.lock*
 tofu/operators/.terraform/
+tofu/operators/udmp-frr.conf
 
 # Secrets & local state
 age.key
