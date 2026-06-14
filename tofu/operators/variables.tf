@@ -54,3 +54,9 @@ variable "cilium_asn" {
   type        = number
   default     = 64872
 }
+
+variable "cilium_devices" {
+  description = "Network interface(s) for Cilium BPF/BGP (run `talosctl get addresses` to confirm). Accepts a glob, e.g. 'eth+' or 'ens+'."
+  type        = string
+  default     = "eth+"
+}

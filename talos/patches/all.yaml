@@ -8,4 +8,16 @@ machine:
     homelab/iot-gateway: "true"
   network:
     kubespan:
+      enabled: false
+      advertiseKubernetesNetworks: false
+  features:
+    hostDNS:
       enabled: true
+      forwardKubeDNSToHost: false
+
+cluster:
+  proxy:
+    disabled: true
+  network:
+    cni:
+      name: none

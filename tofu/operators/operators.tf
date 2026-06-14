@@ -9,14 +9,21 @@ resource "helm_release" "cilium" {
 
   values = [
     yamlencode({
+      ipam                 = { mode = "kubernetes" }
       kubeProxyReplacement = true
-      k8sServiceHost       = var.node_ip
-      k8sServicePort       = 6443
+      k8sServiceHost       = "127.0.0.1"
+      k8sServicePort       = 7445
       operator = {
         replicas = 1
       }
       bgpControlPlane = {
         enabled = true
+      }
+      # Explicit device required: Cilium cannot auto-detect the interface on Talos
+      # (interfaces are dynamically named). Run `talosctl get addresses` to confirm.
+      # devices = var.cilium_devices
+      bpf = {
+        masquerade = true
       }
       # Talos-specific: cgroup is pre-mounted by Talos, don't let Cilium remount it
       cgroup = {
