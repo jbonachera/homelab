@@ -18,6 +18,8 @@ resource "helm_release" "cilium" {
       bgpControlPlane = {
         enabled = true
       }
+      # KubeSpan adds multiple interfaces; pin Cilium to the physical NIC
+      devices = "eno+"
       # Talos-specific: cgroup is pre-mounted by Talos, don't let Cilium remount it
       cgroup = {
         autoMount = { enabled = false }
