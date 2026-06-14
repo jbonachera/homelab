@@ -18,8 +18,12 @@ resource "helm_release" "cilium" {
       bgpControlPlane = {
         enabled = true
       }
-      # KubeSpan compatibility: forces pod traffic through kernel network stack
-      # so KubeSpan/Wireguard can intercept inter-node traffic (siderolabs/docs#553)
+      # Native routing + KubeSpan compatibility (siderolabs/docs#553):
+      # hostLegacyRouting forces pod traffic through kernel stack so Wireguard intercepts it.
+      # directRoutingDevice is required when hostLegacyRouting is enabled.
+      routingMode           = "native"
+      directRoutingDevice   = "^en"
+      ipv4NativeRoutingCIDR = "10.244.0.0/16"
       bpf = {
         masquerade        = true
         hostLegacyRouting = true
