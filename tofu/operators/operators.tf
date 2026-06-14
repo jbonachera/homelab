@@ -19,7 +19,7 @@ resource "helm_release" "cilium" {
         enabled = true
       }
       directRoutingDevice  = var.node_interface
-      autoDirectNodeRoutes = true
+      autoDirectNodeRoutes = false
       # Talos-specific: cgroup is pre-mounted by Talos, don't let Cilium remount it
       cgroup = {
         autoMount = { enabled = false }
