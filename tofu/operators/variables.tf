@@ -37,6 +37,12 @@ variable "chart_nfs_version" {
   default     = "4.0.18"
 }
 
+variable "node_interface" {
+  description = "Primary ethernet interface name on the Talos node (e.g. eno1, enp3s0)"
+  type        = string
+  default     = "eno1"
+}
+
 variable "udmp_asn" {
   description = "BGP ASN of the Unifi Dream Machine Pro"
   type        = number
