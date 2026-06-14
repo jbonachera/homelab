@@ -64,7 +64,9 @@ resource "kubernetes_manifest" "cilium_bgp_cluster_config" {
     }
     spec = {
       nodeSelector = {
-        matchLabels = {}
+        matchLabels = {
+          "kubernetes.io/os" = "linux"
+        }
       }
       bgpInstances = [
         {
@@ -72,9 +74,10 @@ resource "kubernetes_manifest" "cilium_bgp_cluster_config" {
           localASN = var.cilium_asn
           peers = [
             {
-              name        = "udmp"
-              peerASN     = var.udmp_asn
-              peerAddress = var.udmp_ip
+              name             = "udmp"
+              peerASN          = var.udmp_asn
+              peerAddress      = var.udmp_ip
+              advertisementRef = { name = "default" }
             }
           ]
         }
