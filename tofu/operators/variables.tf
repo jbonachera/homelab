@@ -37,12 +37,6 @@ variable "chart_nfs_version" {
   default     = "4.0.18"
 }
 
-variable "node_interface" {
-  description = "Regexp matching the primary ethernet interface(s) on cluster nodes (e.g. ^eno to match eno1, enp0s31f6, etc.)"
-  type        = string
-  default     = "^en"
-}
-
 variable "udmp_asn" {
   description = "BGP ASN of the Unifi Dream Machine Pro"
   type        = number

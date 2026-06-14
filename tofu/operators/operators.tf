@@ -18,8 +18,12 @@ resource "helm_release" "cilium" {
       bgpControlPlane = {
         enabled = true
       }
-      directRoutingDevice  = var.node_interface
-      autoDirectNodeRoutes = false
+      # KubeSpan compatibility: forces pod traffic through kernel network stack
+      # so KubeSpan/Wireguard can intercept inter-node traffic (siderolabs/docs#553)
+      bpf = {
+        masquerade        = true
+        hostLegacyRouting = true
+      }
       # Talos-specific: cgroup is pre-mounted by Talos, don't let Cilium remount it
       cgroup = {
         autoMount = { enabled = false }
