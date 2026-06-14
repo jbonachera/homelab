@@ -96,15 +96,12 @@ resource "kubernetes_manifest" "cilium_bgp_advertisement" {
     spec = {
       advertisements = [
         {
-          advertisementType = "LBIPAMPools"
+          advertisementType = "Service"
+          service = {
+            addresses = ["LoadBalancerIP"]
+          }
           selector = {
-            matchExpressions = [
-              {
-                key      = "io.cilium/bgp-virtual-router.${var.cilium_asn}"
-                operator = "NotIn"
-                values   = ["disabled"]
-              }
-            ]
+            matchLabels = {}
           }
         }
       ]
