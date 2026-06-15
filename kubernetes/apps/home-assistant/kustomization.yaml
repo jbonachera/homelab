@@ -10,3 +10,5 @@ resources:
   - deployment.yaml
   - service.yaml
   - ingress.yaml
+  - gazpar2haws-secret.yaml
+  - gazpar2haws-deployment.yaml

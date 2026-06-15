@@ -1,0 +1,54 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gazpar2haws
+  namespace: home-assistant
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gazpar2haws
+  template:
+    metadata:
+      labels:
+        app: gazpar2haws
+    spec:
+      containers:
+        - name: gazpar2haws
+          image: ssenart/gazpar2haws:latest
+          env:
+            - name: GRDF_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: gazpar2haws
+                  key: GRDF_USERNAME
+            - name: GRDF_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: gazpar2haws
+                  key: GRDF_PASSWORD
+            - name: GRDF_PCE_IDENTIFIER
+              valueFrom:
+                secretKeyRef:
+                  name: gazpar2haws
+                  key: GRDF_PCE_IDENTIFIER
+            - name: HOMEASSISTANT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: gazpar2haws
+                  key: HOMEASSISTANT_TOKEN
+            - name: HOMEASSISTANT_HOST
+              value: home-assistant.home-assistant.svc.cluster.local
+            - name: HOMEASSISTANT_PORT
+              value: "8123"
+            - name: GRDF_SCAN_INTERVAL
+              value: "480"
+            - name: GRDF_LAST_DAYS
+              value: "1095"
+          resources:
+            requests:
+              cpu: 10m
+              memory: 64Mi
+            limits:
+              memory: 128Mi
