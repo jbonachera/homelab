@@ -44,17 +44,17 @@ spec:
           volumeMounts:
             - name: config
               mountPath: /config
-            - name: downloads
-              mountPath: /downloads
-            - name: movies
-              mountPath: /movies
+              subPath: radarr
+            - name: data
+              mountPath: /data/downloads
+              subPath: downloads
+            - name: data
+              mountPath: /data/movies
+              subPath: movies
       volumes:
         - name: config
           persistentVolumeClaim:
-            claimName: radarr-config
-        - name: downloads
+            claimName: media-config
+        - name: data
           persistentVolumeClaim:
-            claimName: media-downloads
-        - name: movies
-          persistentVolumeClaim:
-            claimName: media-movies
+            claimName: media-data

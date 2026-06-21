@@ -44,17 +44,17 @@ spec:
           volumeMounts:
             - name: config
               mountPath: /config
-            - name: downloads
-              mountPath: /downloads
-            - name: tv
-              mountPath: /tv
+              subPath: sonarr
+            - name: data
+              mountPath: /data/downloads
+              subPath: downloads
+            - name: data
+              mountPath: /data/tv
+              subPath: tv
       volumes:
         - name: config
           persistentVolumeClaim:
-            claimName: sonarr-config
-        - name: downloads
+            claimName: media-config
+        - name: data
           persistentVolumeClaim:
-            claimName: media-downloads
-        - name: tv
-          persistentVolumeClaim:
-            claimName: media-tv
+            claimName: media-data
