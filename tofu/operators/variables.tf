@@ -60,6 +60,12 @@ variable "cilium_asn" {
   default     = 64872
 }
 
+variable "chart_headlamp_version" {
+  description = "Headlamp Helm chart version — verify latest at https://artifacthub.io/packages/helm/headlamp/headlamp"
+  type        = string
+  default     = "0.43.0"
+}
+
 variable "cilium_devices" {
   description = "Network interface(s) for Cilium BPF/BGP (run `talosctl get addresses` to confirm). Accepts a glob, e.g. 'eth+' or 'ens+'."
   type        = string

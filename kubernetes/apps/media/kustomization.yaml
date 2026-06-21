@@ -9,5 +9,4 @@ resources:
   - radarr
   - sonarr
   - lidarr
-  - readarr
   - bazarr

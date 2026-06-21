@@ -170,6 +170,10 @@ resource "kubernetes_manifest" "eso_reader_serviceaccount" {
 resource "kubernetes_manifest" "eso_reader_role" {
   depends_on = [kubernetes_manifest.database_namespace]
 
+  field_manager {
+    force_conflicts = true
+  }
+
   manifest = {
     apiVersion = "rbac.authorization.k8s.io/v1"
     kind       = "Role"

@@ -2,23 +2,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: readarr
+  name: lazylibrarian
   namespace: media
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: readarr
+      app: lazylibrarian
   template:
     metadata:
       labels:
-        app: readarr
+        app: lazylibrarian
     spec:
       containers:
-        - name: readarr
-          image: ghcr.io/hotio/readarr:latest
+        - name: lazylibrarian
+          image: ghcr.io/hotio/lazylibrarian:latest
           ports:
-            - containerPort: 8787
+            - containerPort: 5299
           env:
             - name: PUID
               value: "1000"
@@ -31,7 +31,7 @@ spec:
           readinessProbe:
             httpGet:
               path: /
-              port: 8787
+              port: 5299
             initialDelaySeconds: 20
             periodSeconds: 10
             failureThreshold: 6
@@ -44,7 +44,7 @@ spec:
           volumeMounts:
             - name: config
               mountPath: /config
-              subPath: readarr
+              subPath: lazylibrarian
             - name: data
               mountPath: /data/downloads
               subPath: downloads
