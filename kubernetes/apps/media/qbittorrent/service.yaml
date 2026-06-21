@@ -2,12 +2,12 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: lidarr
+  name: qbittorrent
   namespace: media
 spec:
   type: ClusterIP
   selector:
-    app: lidarr
+    app: qbittorrent
   ports:
-    - port: 8686
-      targetPort: 8686
+    - port: 8080
+      targetPort: 8080

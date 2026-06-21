@@ -2,23 +2,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: lidarr
+  name: qbittorrent
   namespace: media
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: lidarr
+      app: qbittorrent
   template:
     metadata:
       labels:
-        app: lidarr
+        app: qbittorrent
     spec:
       containers:
-        - name: lidarr
-          image: ghcr.io/hotio/lidarr:latest
+        - name: qbittorrent
+          image: ghcr.io/hotio/qbittorrent:latest
           ports:
-            - containerPort: 8686
+            - containerPort: 8080
           env:
             - name: PUID
               value: "1000"
@@ -31,7 +31,7 @@ spec:
           readinessProbe:
             httpGet:
               path: /
-              port: 8686
+              port: 8080
             initialDelaySeconds: 20
             periodSeconds: 10
             failureThreshold: 6
@@ -46,15 +46,10 @@ spec:
               mountPath: /config
             - name: downloads
               mountPath: /downloads
-            - name: music
-              mountPath: /music
       volumes:
         - name: config
           persistentVolumeClaim:
-            claimName: lidarr-config
+            claimName: qbittorrent-config
         - name: downloads
           persistentVolumeClaim:
             claimName: media-downloads
-        - name: music
-          persistentVolumeClaim:
-            claimName: media-music

@@ -2,18 +2,18 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: prowlarr
+  name: qbittorrent
   namespace: media
 spec:
   ingressClassName: traefik
   rules:
-    - host: prowlarr.homelab.lan
+    - host: qbittorrent.homelab.lan
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: prowlarr
+                name: qbittorrent
                 port:
-                  number: 9696
+                  number: 8080
