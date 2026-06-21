@@ -1,0 +1,75 @@
+{
+  "planPath": "docs/superpowers/plans/2026-06-21-servarr-stack.md",
+  "tasks": [
+    {
+      "id": 2,
+      "subject": "Task 1: Scaffold namespace + Flux Kustomization",
+      "status": "pending",
+      "description": "**Goal:** Créer le namespace media, le kustomization.yaml racine, et enregistrer la Flux Kustomization CRD.\n\n**Files:**\n- Create: kubernetes/apps/media/namespace.yaml\n- Create: kubernetes/apps/media/kustomization.yaml\n- Create: kubernetes/apps/media.yaml\n- Modify: kubernetes/apps/kustomization.yaml\n\n**Acceptance Criteria:**\n- [ ] namespace media créé\n- [ ] Flux Kustomization CRD valide avec dependsOn: infrastructure\n- [ ] apps/kustomization.yaml référence media.yaml\n- [ ] yamllint 0 erreur\n\n**Verify:** `mise exec -- yamllint kubernetes/apps/media/ kubernetes/apps/media.yaml`\n\n```json:metadata\n{\"files\": [\"kubernetes/apps/media/namespace.yaml\", \"kubernetes/apps/media/kustomization.yaml\", \"kubernetes/apps/media.yaml\", \"kubernetes/apps/kustomization.yaml\"], \"verifyCommand\": \"mise exec -- yamllint kubernetes/apps/media/ kubernetes/apps/media.yaml\", \"acceptanceCriteria\": [\"namespace media créé\", \"Flux Kustomization CRD valide\", \"yamllint 0 erreur\"], \"modelTier\": \"mechanical\"}\n```"
+    },
+    {
+      "id": 3,
+      "subject": "Task 2: PVs et PVCs NFS partagés pour les médias",
+      "status": "pending",
+      "blockedBy": [2],
+      "description": "**Goal:** Créer les PVs/PVCs NFS statiques ReadWriteMany pour downloads/movies/tv/music/books.\n\n**Files:**\n- Create: kubernetes/apps/media/nfs-volumes.yaml\n\n**Acceptance Criteria:**\n- [ ] 5 PVs + 5 PVCs ReadWriteMany\n- [ ] yamllint 0 erreur\n\n**Verify:** `mise exec -- yamllint kubernetes/apps/media/nfs-volumes.yaml`\n\n```json:metadata\n{\"files\": [\"kubernetes/apps/media/nfs-volumes.yaml\"], \"verifyCommand\": \"mise exec -- yamllint kubernetes/apps/media/nfs-volumes.yaml\", \"acceptanceCriteria\": [\"5 PVs NFS\", \"5 PVCs ReadWriteMany\", \"yamllint 0 erreur\"], \"modelTier\": \"mechanical\"}\n```"
+    },
+    {
+      "id": 4,
+      "subject": "Task 3: qBittorrent",
+      "status": "pending",
+      "blockedBy": [2, 3],
+      "description": "**Goal:** Déployer qBittorrent avec PVC config + accès downloads NFS.\n\n**Verify:** `mise exec -- yamllint kubernetes/apps/media/qbittorrent/`\n\n```json:metadata\n{\"files\": [\"kubernetes/apps/media/qbittorrent/\"], \"verifyCommand\": \"mise exec -- yamllint kubernetes/apps/media/qbittorrent/\", \"acceptanceCriteria\": [\"PVC config 1Gi\", \"volumes /config /downloads\", \"Service 8080\", \"Ingress qbittorrent.homelab.lan\"], \"modelTier\": \"mechanical\"}\n```"
+    },
+    {
+      "id": 5,
+      "subject": "Task 4: Prowlarr",
+      "status": "pending",
+      "blockedBy": [2, 3],
+      "description": "**Goal:** Déployer Prowlarr (proxy indexeurs) port 9696.\n\n**Verify:** `mise exec -- yamllint kubernetes/apps/media/prowlarr/`\n\n```json:metadata\n{\"files\": [\"kubernetes/apps/media/prowlarr/\"], \"verifyCommand\": \"mise exec -- yamllint kubernetes/apps/media/prowlarr/\", \"acceptanceCriteria\": [\"PVC config 1Gi\", \"Service 9696\", \"Ingress prowlarr.homelab.lan\"], \"modelTier\": \"mechanical\"}\n```"
+    },
+    {
+      "id": 6,
+      "subject": "Task 5: Radarr",
+      "status": "pending",
+      "blockedBy": [3],
+      "description": "**Goal:** Déployer Radarr (films) port 7878.\n\n**Verify:** `mise exec -- yamllint kubernetes/apps/media/radarr/`\n\n```json:metadata\n{\"files\": [\"kubernetes/apps/media/radarr/\"], \"verifyCommand\": \"mise exec -- yamllint kubernetes/apps/media/radarr/\", \"acceptanceCriteria\": [\"PVC config\", \"volumes downloads+movies\", \"Service 7878\", \"Ingress radarr.homelab.lan\"], \"modelTier\": \"mechanical\"}\n```"
+    },
+    {
+      "id": 7,
+      "subject": "Task 6: Sonarr",
+      "status": "pending",
+      "blockedBy": [3],
+      "description": "**Goal:** Déployer Sonarr (séries) port 8989.\n\n**Verify:** `mise exec -- yamllint kubernetes/apps/media/sonarr/`\n\n```json:metadata\n{\"files\": [\"kubernetes/apps/media/sonarr/\"], \"verifyCommand\": \"mise exec -- yamllint kubernetes/apps/media/sonarr/\", \"acceptanceCriteria\": [\"PVC config\", \"volumes downloads+tv\", \"Service 8989\", \"Ingress sonarr.homelab.lan\"], \"modelTier\": \"mechanical\"}\n```"
+    },
+    {
+      "id": 8,
+      "subject": "Task 7: Lidarr",
+      "status": "pending",
+      "blockedBy": [3],
+      "description": "**Goal:** Déployer Lidarr (musique) port 8686.\n\n**Verify:** `mise exec -- yamllint kubernetes/apps/media/lidarr/`\n\n```json:metadata\n{\"files\": [\"kubernetes/apps/media/lidarr/\"], \"verifyCommand\": \"mise exec -- yamllint kubernetes/apps/media/lidarr/\", \"acceptanceCriteria\": [\"PVC config\", \"volumes downloads+music\", \"Service 8686\", \"Ingress lidarr.homelab.lan\"], \"modelTier\": \"mechanical\"}\n```"
+    },
+    {
+      "id": 9,
+      "subject": "Task 8: Readarr",
+      "status": "pending",
+      "blockedBy": [3],
+      "description": "**Goal:** Déployer Readarr (livres) port 8787.\n\n**Verify:** `mise exec -- yamllint kubernetes/apps/media/readarr/`\n\n```json:metadata\n{\"files\": [\"kubernetes/apps/media/readarr/\"], \"verifyCommand\": \"mise exec -- yamllint kubernetes/apps/media/readarr/\", \"acceptanceCriteria\": [\"PVC config\", \"volumes downloads+books\", \"Service 8787\", \"Ingress readarr.homelab.lan\"], \"modelTier\": \"mechanical\"}\n```"
+    },
+    {
+      "id": 10,
+      "subject": "Task 9: Bazarr",
+      "status": "pending",
+      "blockedBy": [3],
+      "description": "**Goal:** Déployer Bazarr (sous-titres) port 6767.\n\n**Verify:** `mise exec -- yamllint kubernetes/apps/media/bazarr/`\n\n```json:metadata\n{\"files\": [\"kubernetes/apps/media/bazarr/\"], \"verifyCommand\": \"mise exec -- yamllint kubernetes/apps/media/bazarr/\", \"acceptanceCriteria\": [\"PVC config\", \"volumes movies+tv\", \"Service 6767\", \"Ingress bazarr.homelab.lan\"], \"modelTier\": \"mechanical\"}\n```"
+    },
+    {
+      "id": 11,
+      "subject": "Task 10: Lint global et commit final",
+      "status": "pending",
+      "blockedBy": [4, 5, 6, 7, 8, 9, 10],
+      "description": "**Goal:** Vérifier yamllint sur tout le dossier media.\n\n**Verify:** `mise exec -- yamllint kubernetes/apps/media/ kubernetes/apps/media.yaml`\n\n```json:metadata\n{\"files\": [], \"verifyCommand\": \"mise exec -- yamllint kubernetes/apps/media/ kubernetes/apps/media.yaml\", \"acceptanceCriteria\": [\"yamllint 0 erreur\"], \"modelTier\": \"mechanical\"}\n```"
+    }
+  ],
+  "lastUpdated": "2026-06-21T00:00:00Z"
+}
