@@ -1,0 +1,140 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: media-downloads
+spec:
+  capacity:
+    storage: 500Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  nfs:
+    server: 172.20.2.150
+    path: /var/nfs/shared/K8S/downloads
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: media-downloads
+  namespace: media
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 500Gi
+  volumeName: media-downloads
+  storageClassName: ""
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: media-movies
+spec:
+  capacity:
+    storage: 2Ti
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  nfs:
+    server: 172.20.2.150
+    path: /var/nfs/shared/K8S/movies
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: media-movies
+  namespace: media
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 2Ti
+  volumeName: media-movies
+  storageClassName: ""
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: media-tv
+spec:
+  capacity:
+    storage: 2Ti
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  nfs:
+    server: 172.20.2.150
+    path: /var/nfs/shared/K8S/tv
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: media-tv
+  namespace: media
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 2Ti
+  volumeName: media-tv
+  storageClassName: ""
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: media-music
+spec:
+  capacity:
+    storage: 500Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  nfs:
+    server: 172.20.2.150
+    path: /var/nfs/shared/K8S/music
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: media-music
+  namespace: media
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 500Gi
+  volumeName: media-music
+  storageClassName: ""
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: media-books
+spec:
+  capacity:
+    storage: 100Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  nfs:
+    server: 172.20.2.150
+    path: /var/nfs/shared/K8S/books
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: media-books
+  namespace: media
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi
+  volumeName: media-books
+  storageClassName: ""
