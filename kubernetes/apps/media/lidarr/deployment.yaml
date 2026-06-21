@@ -44,17 +44,17 @@ spec:
           volumeMounts:
             - name: config
               mountPath: /config
-            - name: downloads
-              mountPath: /downloads
-            - name: music
-              mountPath: /music
+              subPath: lidarr
+            - name: data
+              mountPath: /data/downloads
+              subPath: downloads
+            - name: data
+              mountPath: /data/music
+              subPath: music
       volumes:
         - name: config
           persistentVolumeClaim:
-            claimName: lidarr-config
-        - name: downloads
+            claimName: media-config
+        - name: data
           persistentVolumeClaim:
-            claimName: media-downloads
-        - name: music
-          persistentVolumeClaim:
-            claimName: media-music
+            claimName: media-data

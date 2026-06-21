@@ -44,17 +44,17 @@ spec:
           volumeMounts:
             - name: config
               mountPath: /config
-            - name: movies
-              mountPath: /movies
-            - name: tv
-              mountPath: /tv
+              subPath: bazarr
+            - name: data
+              mountPath: /data/movies
+              subPath: movies
+            - name: data
+              mountPath: /data/tv
+              subPath: tv
       volumes:
         - name: config
           persistentVolumeClaim:
-            claimName: bazarr-config
-        - name: movies
+            claimName: media-config
+        - name: data
           persistentVolumeClaim:
-            claimName: media-movies
-        - name: tv
-          persistentVolumeClaim:
-            claimName: media-tv
+            claimName: media-data

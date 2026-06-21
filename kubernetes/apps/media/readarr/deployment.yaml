@@ -44,17 +44,17 @@ spec:
           volumeMounts:
             - name: config
               mountPath: /config
-            - name: downloads
-              mountPath: /downloads
-            - name: books
-              mountPath: /books
+              subPath: readarr
+            - name: data
+              mountPath: /data/downloads
+              subPath: downloads
+            - name: data
+              mountPath: /data/books
+              subPath: books
       volumes:
         - name: config
           persistentVolumeClaim:
-            claimName: readarr-config
-        - name: downloads
+            claimName: media-config
+        - name: data
           persistentVolumeClaim:
-            claimName: media-downloads
-        - name: books
-          persistentVolumeClaim:
-            claimName: media-books
+            claimName: media-data
