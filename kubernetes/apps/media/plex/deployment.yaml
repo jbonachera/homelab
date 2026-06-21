@@ -1,0 +1,63 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: plex
+  namespace: media
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: plex
+  template:
+    metadata:
+      labels:
+        app: plex
+    spec:
+      containers:
+        - name: plex
+          image: ghcr.io/hotio/plex:latest
+          ports:
+            - containerPort: 32400
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: UMASK
+              value: "002"
+            - name: TZ
+              value: "Europe/Paris"
+            - name: PLEX_CLAIM_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: plex
+                  key: PLEX_CLAIM_TOKEN
+            - name: PLEX_ADVERTISE_URL
+              value: "http://plex.homelab.lan:80/"
+          readinessProbe:
+            httpGet:
+              path: /identity
+              port: 32400
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            failureThreshold: 6
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              memory: 2Gi
+          volumeMounts:
+            - name: config
+              mountPath: /config
+              subPath: plex
+            - name: media
+              mountPath: /media
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: media-config
+        - name: media
+          persistentVolumeClaim:
+            claimName: plex-library
