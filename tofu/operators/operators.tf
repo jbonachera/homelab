@@ -174,6 +174,14 @@ resource "helm_release" "traefik" {
         web = {
           exposedPort = 80
         }
+        plex = {
+          port        = 32400
+          exposedPort = 32400
+          protocol    = "TCP"
+          expose = {
+            default = true
+          }
+        }
       }
       ingressRoute = {
         dashboard = {

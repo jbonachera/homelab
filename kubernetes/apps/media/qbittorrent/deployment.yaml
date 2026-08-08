@@ -45,9 +45,9 @@ spec:
             - name: config
               mountPath: /config
               subPath: qbittorrent
-            - name: data
+            - name: media
               mountPath: /data/downloads
-              subPath: downloads
+              subPath: "DL"
       volumes:
         - name: config
           persistentVolumeClaim:
@@ -55,3 +55,6 @@ spec:
         - name: data
           persistentVolumeClaim:
             claimName: media-data
+        - name: media
+          persistentVolumeClaim:
+            claimName: plex-library

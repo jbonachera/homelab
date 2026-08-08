@@ -33,8 +33,6 @@ spec:
                 secretKeyRef:
                   name: plex
                   key: PLEX_CLAIM_TOKEN
-            - name: PLEX_ADVERTISE_URL
-              value: "http://plex.homelab.lan:80/"
           readinessProbe:
             httpGet:
               path: /identity
@@ -44,10 +42,10 @@ spec:
             failureThreshold: 6
           resources:
             requests:
-              cpu: 100m
-              memory: 512Mi
-            limits:
+              cpu: 2000m
               memory: 2Gi
+            limits:
+              memory: 4Gi
           volumeMounts:
             - name: config
               mountPath: /config

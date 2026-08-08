@@ -1,0 +1,31 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: jellyfin-library
+spec:
+  capacity:
+    storage: 5Ti
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  claimRef:
+    name: jellyfin-library
+    namespace: media
+  nfs:
+    server: 172.20.2.150
+    path: /var/nfs/shared/Partagé/Bibliotheque
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: jellyfin-library
+  namespace: media
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Ti
+  volumeName: jellyfin-library
+  storageClassName: ""

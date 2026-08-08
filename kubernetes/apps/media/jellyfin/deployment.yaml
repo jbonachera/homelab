@@ -1,0 +1,133 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jellyfin
+  namespace: media
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jellyfin
+  template:
+    metadata:
+      labels:
+        app: jellyfin
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      initContainers:
+        - name: db-bootstrap
+          image: postgres:16-alpine
+          command:
+            - sh
+            - -c
+            - |
+              set -eu
+              ROLE_SQL="DO \$\$ BEGIN \
+                IF NOT EXISTS ( \
+                  SELECT FROM pg_catalog.pg_roles \
+                  WHERE rolname = '${JELLYFIN_DB_USER}' \
+                ) THEN \
+                  CREATE ROLE \"${JELLYFIN_DB_USER}\" \
+                    LOGIN PASSWORD '${JELLYFIN_DB_PASSWORD}'; \
+                ELSE \
+                  ALTER ROLE \"${JELLYFIN_DB_USER}\" \
+                    WITH LOGIN PASSWORD '${JELLYFIN_DB_PASSWORD}'; \
+                END IF; \
+              END \$\$;"
+              psql -v ON_ERROR_STOP=1 -c "${ROLE_SQL}"
+
+              EXISTS=$(psql -v ON_ERROR_STOP=1 -tAc \
+                "SELECT 1 FROM pg_database \
+                 WHERE datname = '${JELLYFIN_DB_NAME}'")
+              if [ "${EXISTS}" != "1" ]; then
+                psql -v ON_ERROR_STOP=1 -c \
+                  "CREATE DATABASE \"${JELLYFIN_DB_NAME}\" \
+                   OWNER \"${JELLYFIN_DB_USER}\""
+              fi
+          env:
+            - name: PGHOST
+              value: timescaledb.database.svc.cluster.local
+            - name: PGPORT
+              value: "5432"
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: timescaledb-credentials
+                  key: username
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: timescaledb-credentials
+                  key: password
+            - name: JELLYFIN_DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: jellyfin-db-credentials
+                  key: username
+            - name: JELLYFIN_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: jellyfin-db-credentials
+                  key: password
+            - name: JELLYFIN_DB_NAME
+              value: jellyfin
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 128Mi
+      containers:
+        - name: jellyfin
+          image: ghcr.io/jpvenson/jellyfin.pgsql:10.11.11-1
+          ports:
+            - containerPort: 8096
+          env:
+            - name: TZ
+              value: "Europe/Paris"
+            - name: POSTGRES_HOST
+              value: timescaledb.database.svc.cluster.local
+            - name: POSTGRES_PORT
+              value: "5432"
+            - name: POSTGRES_DB
+              value: jellyfin
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: jellyfin-db-credentials
+                  key: username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: jellyfin-db-credentials
+                  key: password
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8096
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            failureThreshold: 6
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              memory: 2Gi
+          volumeMounts:
+            - name: config
+              mountPath: /config
+              subPath: jellyfin-pgsql
+            - name: media
+              mountPath: /media
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: media-config
+        - name: media
+          persistentVolumeClaim:
+            claimName: jellyfin-library

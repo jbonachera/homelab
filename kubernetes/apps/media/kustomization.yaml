@@ -4,10 +4,11 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - nfs-volumes.yaml
-  # - qbittorrent
+  - qbittorrent
   # - prowlarr
   # - radarr
   # - sonarr
   # - lidarr
   # - bazarr
-  - plex
+  # - plex
+  - jellyfin
