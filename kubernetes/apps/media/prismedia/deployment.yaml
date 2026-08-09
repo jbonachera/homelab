@@ -1,0 +1,174 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prismedia
+  namespace: media
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prismedia
+  template:
+    metadata:
+      labels:
+        app: prismedia
+    spec:
+      initContainers:
+        - name: db-bootstrap
+          image: postgres:16-alpine
+          command:
+            - sh
+            - -c
+            - |
+              set -eu
+              ROLE_SQL="DO \$\$ BEGIN \
+                IF NOT EXISTS ( \
+                  SELECT FROM pg_catalog.pg_roles \
+                  WHERE rolname = '${PRISMEDIA_DB_USER}' \
+                ) THEN \
+                  CREATE ROLE \"${PRISMEDIA_DB_USER}\" \
+                    LOGIN PASSWORD '${PRISMEDIA_DB_PASSWORD}'; \
+                ELSE \
+                  ALTER ROLE \"${PRISMEDIA_DB_USER}\" \
+                    WITH LOGIN PASSWORD '${PRISMEDIA_DB_PASSWORD}'; \
+                END IF; \
+              END \$\$;"
+              psql -v ON_ERROR_STOP=1 -c "${ROLE_SQL}"
+
+              EXISTS=$(psql -v ON_ERROR_STOP=1 -tAc \
+                "SELECT 1 FROM pg_database \
+                 WHERE datname = '${PRISMEDIA_DB_NAME}'")
+              if [ "${EXISTS}" != "1" ]; then
+                psql -v ON_ERROR_STOP=1 -c \
+                  "CREATE DATABASE \"${PRISMEDIA_DB_NAME}\" \
+                   OWNER \"${PRISMEDIA_DB_USER}\""
+              fi
+          env:
+            - name: PGHOST
+              value: timescaledb.database.svc.cluster.local
+            - name: PGPORT
+              value: "5432"
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: timescaledb-credentials
+                  key: username
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: timescaledb-credentials
+                  key: password
+            - name: PRISMEDIA_DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: prismedia-db-credentials
+                  key: username
+            - name: PRISMEDIA_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: prismedia-db-credentials
+                  key: password
+            - name: PRISMEDIA_DB_NAME
+              value: prismedia
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 128Mi
+      containers:
+        # Upstream's ghcr.io/pauljoda/prismedia image hard-forces its own
+        # embedded PostgreSQL (its entrypoint.sh overwrites DATABASE_URL to
+        # 127.0.0.1 no matter what's set). We already run a shared Postgres
+        # (timescaledb) in this cluster, so the entrypoint is overridden here
+        # to skip the embedded DB and run the API/worker directly against
+        # timescaledb instead.
+        - name: api
+          image: ghcr.io/pauljoda/prismedia:latest
+          command:
+            - dotnet
+            - /app/api/Prismedia.Api.dll
+          ports:
+            - containerPort: 8008
+          env:
+            - name: TZ
+              value: "Europe/Paris"
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: prismedia-db-credentials
+                  key: password
+            - name: DATABASE_URL
+              value: >-
+                postgresql://prismedia:$(DB_PASSWORD)@timescaledb.database.svc.cluster.local:5432/prismedia
+            - name: PRISMEDIA_DATA_DIR
+              value: /data
+            - name: PRISMEDIA_CACHE_DIR
+              value: /data/cache
+            - name: PRISMEDIA_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: prismedia
+                  key: PRISMEDIA_SECRET
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 8008
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            failureThreshold: 6
+          resources:
+            requests:
+              cpu: 200m
+              memory: 512Mi
+            limits:
+              memory: 2Gi
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: media
+              mountPath: /media
+        - name: worker
+          image: ghcr.io/pauljoda/prismedia:latest
+          command:
+            - dotnet
+            - /app/worker/Prismedia.Worker.dll
+          env:
+            - name: TZ
+              value: "Europe/Paris"
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: prismedia-db-credentials
+                  key: password
+            - name: DATABASE_URL
+              value: >-
+                postgresql://prismedia:$(DB_PASSWORD)@timescaledb.database.svc.cluster.local:5432/prismedia
+            - name: PRISMEDIA_DATA_DIR
+              value: /data
+            - name: PRISMEDIA_CACHE_DIR
+              value: /data/cache
+            - name: PRISMEDIA_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: prismedia
+                  key: PRISMEDIA_SECRET
+          resources:
+            requests:
+              cpu: 200m
+              memory: 512Mi
+            limits:
+              memory: 2Gi
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: media
+              mountPath: /media
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: prismedia-data
+        - name: media
+          persistentVolumeClaim:
+            claimName: prismedia-library

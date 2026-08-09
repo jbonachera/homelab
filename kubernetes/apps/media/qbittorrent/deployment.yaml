@@ -21,9 +21,9 @@ spec:
             - containerPort: 8080
           env:
             - name: PUID
-              value: "1000"
+              value: "977"
             - name: PGID
-              value: "1000"
+              value: "988"
             - name: UMASK
               value: "002"
             - name: TZ
@@ -57,4 +57,4 @@ spec:
             claimName: media-data
         - name: media
           persistentVolumeClaim:
-            claimName: plex-library
+            claimName: media-library

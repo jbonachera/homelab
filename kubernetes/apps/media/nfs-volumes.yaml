@@ -14,7 +14,7 @@ spec:
     namespace: media
   nfs:
     server: 172.20.2.150
-    path: /var/nfs/shared/K8S/media/config
+    path: /var/nfs/shared/Servers/media/config
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -45,7 +45,7 @@ spec:
     namespace: media
   nfs:
     server: 172.20.2.150
-    path: /var/nfs/shared/K8S/media/data
+    path: /var/nfs/shared/Servers/media/data
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -59,4 +59,35 @@ spec:
     requests:
       storage: 5Ti
   volumeName: media-data
+  storageClassName: ""
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: media-library
+spec:
+  capacity:
+    storage: 5Ti
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  claimRef:
+    name: media-library
+    namespace: media
+  nfs:
+    server: 172.20.2.150
+    path: /var/nfs/shared/Partagé/Bibliotheque
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: media-library
+  namespace: media
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Ti
+  volumeName: media-library
   storageClassName: ""

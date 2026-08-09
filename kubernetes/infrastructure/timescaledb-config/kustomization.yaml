@@ -6,3 +6,4 @@ resources:
   - password-generator.yaml
   - external-secret.yaml
   - eso-reader-rbac.yaml
+  - gazpar2haws.secret.yaml

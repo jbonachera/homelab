@@ -4,7 +4,7 @@ variable "nfs_server" {
 }
 
 variable "nfs_path" {
-  description = "NFS export path (e.g. /var/nfs/shared/K8S)"
+  description = "NFS export path (e.g. /var/nfs/shared/Servers)"
   type        = string
 }
 

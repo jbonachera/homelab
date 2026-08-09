@@ -12,6 +12,7 @@ rules:
       - timescaledb-credentials
       - gazpar2haws
       - jellyfin-db-credentials
+      - prismedia-db-credentials
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding

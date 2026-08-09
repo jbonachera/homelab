@@ -58,4 +58,4 @@ spec:
             claimName: media-config
         - name: media
           persistentVolumeClaim:
-            claimName: plex-library
+            claimName: media-library
