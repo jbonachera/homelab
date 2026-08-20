@@ -1,0 +1,19 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ct-stream
+  namespace: fugue
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: fugue-index.homelab.lan
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ct-stream
+                port:
+                  number: 8080
