@@ -1,0 +1,45 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ct-stream
+  namespace: fugue
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ct-stream
+  template:
+    metadata:
+      labels:
+        app: ct-stream
+    spec:
+      containers:
+        - name: ct-stream
+          image: docker.io/jbonachera/ct-stream:latest
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /status
+              port: 8080
+            periodSeconds: 60
+            failureThreshold: 30
+          livenessProbe:
+            httpGet:
+              path: /status
+              port: 8080
+            periodSeconds: 60
+            failureThreshold: 30
+          resources:
+            requests:
+              memory: 4096Mi
+            limits:
+              memory: 4096Mi
+          volumeMounts:
+            - name: data
+              mountPath: /app/data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: ct-stream-data

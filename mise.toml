@@ -52,3 +52,6 @@ flux bootstrap github \
 [tasks.reset]
 description = "Wipe and reprovision the node — requires NODE_IP env var"
 run         = "talosctl reset --reboot"
+
+[tasks.mount]
+run = "sudo mount -o resvport -t nfs 172.20.2.150:/var/nfs/shared/Servers localmount"
