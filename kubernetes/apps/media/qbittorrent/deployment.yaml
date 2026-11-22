@@ -19,6 +19,13 @@ spec:
           image: ghcr.io/hotio/qbittorrent:latest
           ports:
             - containerPort: 8080
+              name: webui
+            - containerPort: 59477
+              name: bt-tcp
+              protocol: TCP
+            - containerPort: 59477
+              name: bt-udp
+              protocol: UDP
           env:
             - name: PUID
               value: "977"
